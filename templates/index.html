@@ -1,0 +1,8034 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Language" content="en">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <script>
+        L_NO_TOUCH = false;
+        L_DISABLE_3D = false;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js">
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css" />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css" />
+
+    <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #form {
+            position: absolute;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 30px;
+            padding: 0 10px 0 10px;
+            color: #007bff;
+            text-shadow: 0 0 5px #007bff;
+        }
+
+        #or {
+            padding: 0 0 0 10px;
+            font-size: 24px;
+            color: #555;
+        }
+
+        #clickonm {
+            font-size: 30px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+
+        select {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: 0.5s ease;
+        }
+
+        select::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #007bff;
+            transition: .6s;
+            transform: scale(.9);
+            z-index: -1;
+        }
+
+        select:hover::before {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px #007bff;
+        }
+
+        select:hover {
+            color: #007bff;
+            box-shadow: 0 0 5px #007bff;
+            text-shadow: 0 0 5px #007bff;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            color: #fff;
+            cursor: pointer;
+            background-size: 300% 100%;
+            -o-transition: all .4s ease-in-out;
+            -webkit-transition: all .4s ease-in-out;
+            transition: all .4s ease-in-out;
+            transition: background-color 0.3s ease;
+            /* background-image: linear-gradient(to right, #29323c, #485563, #2b5876, #4e4376);
+    box-shadow: 0 4px 15px 0 rgba(45, 54, 65, 0.75); */
+            background-image: linear-gradient(to right, #007bff, #00bfff, #0d2aad);
+            box-shadow: 0 4px 15px 0 rgba(0, 123, 255, 0.75);
+            text-transform: none !important;
+        }
+
+        button[type="submit"]:hover {
+            background-position: 100% 0;
+            -o-transition: all .4s ease-in-out;
+            -webkit-transition: all .4s ease-in-out;
+            transition: all .4s ease-in-out;
+        }
+
+        #map_bfe8d74b7811c31edb666c542fc9d678 {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .leaflet-container {
+            font-size: 1rem;
+        }
+    </style>
+
+</head>
+
+<body class="notranslate">
+    <div id="form">
+        <h1>Select a City</h1>
+        <form id="cityForm" action="/plot" method="post">
+            <select name="city" id="citySelect">
+                {% for city in city_names %}
+                <option value="{{ city }}">{{ city }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" id="submitButton">Plot</button>
+        </form>
+        <h1 id="or">or</h1>
+        <h1 id="clickonm">Click on a Marker</h1>
+    </div>
+
+    <div class="folium-map" id="map_bfe8d74b7811c31edb666c542fc9d678"></div>
+
+</body>
+<script>
+    var map_bfe8d74b7811c31edb666c542fc9d678 = L.map(
+        "map_bfe8d74b7811c31edb666c542fc9d678", {
+            center: [19.67, 78.53],
+            crs: L.CRS.EPSG3857,
+            zoom: 5,
+            zoomControl: true,
+            preferCanvas: false,
+        }
+    );
+
+    var tile_layer_34f3ca41a6f4f7f48cfc06a0c6ce93df = L.tileLayer(
+        "https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+            "detectRetina": false,
+            "maxNativeZoom": 19,
+            "maxZoom": 19,
+            "minZoom": 0,
+            "noWrap": false,
+            "opacity": 1,
+            "subdomains": "abc",
+            "tms": false
+        }
+    );
+
+    tile_layer_34f3ca41a6f4f7f48cfc06a0c6ce93df.addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+    var marker_2ca58d2b6c4bf10c579f99272168d6a1 = L.marker(
+        [19.67, 78.53], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_2ca58d2b6c4bf10c579f99272168d6a1.bindTooltip(
+        `<div>
+             Adilabad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_511c0489c266e15a4e8bbece3ffb6aaa = L.marker(
+        [23.7, 76.02], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_511c0489c266e15a4e8bbece3ffb6aaa.bindTooltip(
+        `<div>
+             Agar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_4bbc26d037d3c006bd18d063b052fa5a = L.marker(
+        [27.18, 78.02], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_4bbc26d037d3c006bd18d063b052fa5a.bindTooltip(
+        `<div>
+             Agra
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_4053bd8ff8d7dcc06d95f68ea7163261 = L.marker(
+        [19.08, 74.73], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_4053bd8ff8d7dcc06d95f68ea7163261.bindTooltip(
+        `<div>
+             Ahmadnagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_0db106105463268b0072e7f48657ae2d = L.marker(
+        [23.72, 92.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_0db106105463268b0072e7f48657ae2d.bindTooltip(
+        `<div>
+             Aizawl
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d8b26ecdcfdf68d0e819b80d0ed34d1e = L.marker(
+        [26.45, 74.63], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d8b26ecdcfdf68d0e819b80d0ed34d1e.bindTooltip(
+        `<div>
+             Ajmer
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_515447187c907d325847f0073b05268b = L.marker(
+        [20.73, 77.0], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_515447187c907d325847f0073b05268b.bindTooltip(
+        `<div>
+             Akola
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a1f484b3060b4445dd45994657d67bf6 = L.marker(
+        [9.49, 76.33], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a1f484b3060b4445dd45994657d67bf6.bindTooltip(
+        `<div>
+             Alappuzha
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6bf8c433116231fed903466534b1d37b = L.marker(
+        [27.88, 78.08], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6bf8c433116231fed903466534b1d37b.bindTooltip(
+        `<div>
+             Aligarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_30f6fab93d8d55f6572d78a7a1f5b227 = L.marker(
+        [11.73, 92.68], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_30f6fab93d8d55f6572d78a7a1f5b227.bindTooltip(
+        `<div>
+             Alipur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_eab373ff75848771032ce4f55c0ff6ef = L.marker(
+        [22.3, 74.35], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_eab373ff75848771032ce4f55c0ff6ef.bindTooltip(
+        `<div>
+             Alirajpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ed7dd25f9a5db48bc0f4eb3b22c1efbb = L.marker(
+        [25.45, 81.85], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ed7dd25f9a5db48bc0f4eb3b22c1efbb.bindTooltip(
+        `<div>
+             Allahabad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9e228d75c493b13c5d90a64759a01aca = L.marker(
+        [29.62, 79.67], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9e228d75c493b13c5d90a64759a01aca.bindTooltip(
+        `<div>
+             Almora
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_87252d831e149ca799368c8aa8a6d212 = L.marker(
+        [27.57, 76.6], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_87252d831e149ca799368c8aa8a6d212.bindTooltip(
+        `<div>
+             Alwar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6525c01f3292f1f828661dffda843171 = L.marker(
+        [30.38, 76.78], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6525c01f3292f1f828661dffda843171.bindTooltip(
+        `<div>
+             Ambala
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b62f4e0255e05e958f031aa5200946c4 = L.marker(
+        [28.02, 81.05], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b62f4e0255e05e958f031aa5200946c4.bindTooltip(
+        `<div>
+             Amethi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a40e4e6f5ecb8f8119b326888af5c028 = L.marker(
+        [20.93, 77.75], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a40e4e6f5ecb8f8119b326888af5c028.bindTooltip(
+        `<div>
+             Amravati
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_224ae27d9de5481cdc74a8028a231f60 = L.marker(
+        [21.62, 71.23], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_224ae27d9de5481cdc74a8028a231f60.bindTooltip(
+        `<div>
+             Amreli
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_eefddf88745d062acb811cb24849af5d = L.marker(
+        [31.63, 74.87], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_eefddf88745d062acb811cb24849af5d.bindTooltip(
+        `<div>
+             Amritsar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b34d3c1e5421ba33c19109731bad54e6 = L.marker(
+        [22.57, 72.93], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b34d3c1e5421ba33c19109731bad54e6.bindTooltip(
+        `<div>
+             Anand
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8e546f445f429f36a9e9574e74ca62e4 = L.marker(
+        [14.68, 77.6], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8e546f445f429f36a9e9574e74ca62e4.bindTooltip(
+        `<div>
+             Anantapur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_dc8ceb97f935d3b464a3fa175ad5a7b2 = L.marker(
+        [33.73, 75.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_dc8ceb97f935d3b464a3fa175ad5a7b2.bindTooltip(
+        `<div>
+             Anantnag
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c6ae993c4f4eb748d65a8848a16644e9 = L.marker(
+        [20.85, 85.1], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c6ae993c4f4eb748d65a8848a16644e9.bindTooltip(
+        `<div>
+             Anugul
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c7ae0b9fe22c8b3a813a73523b9011af = L.marker(
+        [23.1, 81.68], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c7ae0b9fe22c8b3a813a73523b9011af.bindTooltip(
+        `<div>
+             Anuppur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1e2fe4af4a52f750fef10a6601c36ef3 = L.marker(
+        [26.15, 87.52], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1e2fe4af4a52f750fef10a6601c36ef3.bindTooltip(
+        `<div>
+             Araria
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_35f2bb65ce36988807490da9babac15c = L.marker(
+        [11.13, 79.08], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_35f2bb65ce36988807490da9babac15c.bindTooltip(
+        `<div>
+             Ariyalur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a0495ff2daf4eb5d21e988a3bb557fdd = L.marker(
+        [9.17, 92.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a0495ff2daf4eb5d21e988a3bb557fdd.bindTooltip(
+        `<div>
+             Arong
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_18df9c89b011ca952a3cda4df755ac1e = L.marker(
+        [25.25, 84.68], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_18df9c89b011ca952a3cda4df755ac1e.bindTooltip(
+        `<div>
+             Arwal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_51a44a613960287f3c28468e42073dc7 = L.marker(
+        [24.57, 77.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_51a44a613960287f3c28468e42073dc7.bindTooltip(
+        `<div>
+             Ashoknagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7f5c268e9a464ce266622cabc3118781 = L.marker(
+        [26.47, 79.52], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7f5c268e9a464ce266622cabc3118781.bindTooltip(
+        `<div>
+             Auraiya
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_bc64973c8f80c48f48cb2123255daec6 = L.marker(
+        [19.88, 75.33], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_bc64973c8f80c48f48cb2123255daec6.bindTooltip(
+        `<div>
+             Aurangabad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_db5e981a1a22298384612e6155bca649 = L.marker(
+        [26.06, 83.19], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_db5e981a1a22298384612e6155bca649.bindTooltip(
+        `<div>
+             Azamgarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_5d67026ccedda282504691bab7034f25 = L.marker(
+        [34.02, 74.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_5d67026ccedda282504691bab7034f25.bindTooltip(
+        `<div>
+             Badgam
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_2baf6801ba04d8dc10b499af597f823f = L.marker(
+        [16.18, 75.7], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_2baf6801ba04d8dc10b499af597f823f.bindTooltip(
+        `<div>
+             Bagalkot
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_2b20d3a06ec5a67f719a130c85837807 = L.marker(
+        [29.85, 79.77], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_2b20d3a06ec5a67f719a130c85837807.bindTooltip(
+        `<div>
+             Bageshwar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3dd3244249b7a066eaf6fe37c89d0b4a = L.marker(
+        [28.95, 77.22], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3dd3244249b7a066eaf6fe37c89d0b4a.bindTooltip(
+        `<div>
+             Baghpat
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_15e9c0c53e2bc0d1cb9c9722f380a012 = L.marker(
+        [27.58, 81.6], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_15e9c0c53e2bc0d1cb9c9722f380a012.bindTooltip(
+        `<div>
+             Bahraich
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_da7881e44e26033d45c12e5472b372ef = L.marker(
+        [26.75, 89.58], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_da7881e44e26033d45c12e5472b372ef.bindTooltip(
+        `<div>
+             Baksa Duar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_dbef7f9fd702ef1c7b77f79cbabb468c = L.marker(
+        [21.78, 80.25], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_dbef7f9fd702ef1c7b77f79cbabb468c.bindTooltip(
+        `<div>
+             Balaghat
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_4809acf05e563246d16366bee7c675be = L.marker(
+        [20.72, 83.48], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_4809acf05e563246d16366bee7c675be.bindTooltip(
+        `<div>
+             Balangir
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9637e10cf738c076f428f2af0d0741e1 = L.marker(
+        [21.49, 86.93], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9637e10cf738c076f428f2af0d0741e1.bindTooltip(
+        `<div>
+             Baleshwar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ef5fada5703168f121fc07c6a6ea0ead = L.marker(
+        [25.75, 84.17], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ef5fada5703168f121fc07c6a6ea0ead.bindTooltip(
+        `<div>
+             Ballia
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_bbdfede44c1d97665d948a4d55be9535 = L.marker(
+        [20.73, 81.2], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_bbdfede44c1d97665d948a4d55be9535.bindTooltip(
+        `<div>
+             Balod
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_dd52ca83b2da51aa25be8f8e5ba5d114 = L.marker(
+        [21.67, 82.17], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_dd52ca83b2da51aa25be8f8e5ba5d114.bindTooltip(
+        `<div>
+             Baloda Bazar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_31ccd9fc22b167f48738c9332fdeef92 = L.marker(
+        [27.43, 82.18], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_31ccd9fc22b167f48738c9332fdeef92.bindTooltip(
+        `<div>
+             Balrampur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_39bf51ef3174c9aebc360a1397c5e00e = L.marker(
+        [25.48, 80.33], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_39bf51ef3174c9aebc360a1397c5e00e.bindTooltip(
+        `<div>
+             Banda
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_739ffd0cf622041014ed39701de179a2 = L.marker(
+        [12.98, 77.58], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_739ffd0cf622041014ed39701de179a2.bindTooltip(
+        `<div>
+             Bangalore
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a407711142b2b712c031dc51b74f150b = L.marker(
+        [24.88, 86.92], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a407711142b2b712c031dc51b74f150b.bindTooltip(
+        `<div>
+             Banka
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_dbc8ca1efaa0fa91cbec8f34b2f35bc6 = L.marker(
+        [23.25, 87.07], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_dbc8ca1efaa0fa91cbec8f34b2f35bc6.bindTooltip(
+        `<div>
+             Bankura
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_380869896e8b9c3ccc73a0b62aafa208 = L.marker(
+        [23.55, 74.45], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_380869896e8b9c3ccc73a0b62aafa208.bindTooltip(
+        `<div>
+             Banswara
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b95bc8bc2c2a66eca68976cacb7993c7 = L.marker(
+        [26.92, 81.2], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b95bc8bc2c2a66eca68976cacb7993c7.bindTooltip(
+        `<div>
+             Bara Banki
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_432795c18c6bc68d49ba1a41c2493558 = L.marker(
+        [34.21, 74.34], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_432795c18c6bc68d49ba1a41c2493558.bindTooltip(
+        `<div>
+             Baramula
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3bcabf81fc3b785c3f3a28666bd83223 = L.marker(
+        [25.1, 76.52], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3bcabf81fc3b785c3f3a28666bd83223.bindTooltip(
+        `<div>
+             Baran
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_fd4c9f1788a21a73a1683dbe8d3d29ab = L.marker(
+        [23.24, 87.87], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_fd4c9f1788a21a73a1683dbe8d3d29ab.bindTooltip(
+        `<div>
+             Barddhaman
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a17848f26a1f1188821965cb9f340a41 = L.marker(
+        [28.35, 79.42], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a17848f26a1f1188821965cb9f340a41.bindTooltip(
+        `<div>
+             Bareilly
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_bfac7fa1b3c59ee3ef09710a60f20aab = L.marker(
+        [21.33, 83.62], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_bfac7fa1b3c59ee3ef09710a60f20aab.bindTooltip(
+        `<div>
+             Bargarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_5d029f152c30fceec7ed7424c61970ab = L.marker(
+        [23.62, 91.37], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_5d029f152c30fceec7ed7424c61970ab.bindTooltip(
+        `<div>
+             Barjala
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_65690e1ae6aebb916ab0caaec291dfa7 = L.marker(
+        [25.75, 71.38], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_65690e1ae6aebb916ab0caaec291dfa7.bindTooltip(
+        `<div>
+             Barmer
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_5381f19aee1b8c66711e385db066a291 = L.marker(
+        [30.38, 75.55], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_5381f19aee1b8c66711e385db066a291.bindTooltip(
+        `<div>
+             Barnala
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7ed3256eb19d1f2552d85b4eb1c863ee = L.marker(
+        [26.32, 91.0], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7ed3256eb19d1f2552d85b4eb1c863ee.bindTooltip(
+        `<div>
+             Barpeta
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_22a439964a40e0dc346ed0933e3de34a = L.marker(
+        [22.03, 74.9], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_22a439964a40e0dc346ed0933e3de34a.bindTooltip(
+        `<div>
+             Barwani
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_522de39cb657546a076322ec2a4ff71e = L.marker(
+        [19.2, 81.93], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_522de39cb657546a076322ec2a4ff71e.bindTooltip(
+        `<div>
+             Bastar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9ab4e98839f23cabf674c01e905df3e7 = L.marker(
+        [26.8, 82.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9ab4e98839f23cabf674c01e905df3e7.bindTooltip(
+        `<div>
+             Basti
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a0c907bfe159f926949b62933da02416 = L.marker(
+        [20.83, 84.32], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a0c907bfe159f926949b62933da02416.bindTooltip(
+        `<div>
+             Baudh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3e5da10c8cdaec94514c6e34205a720d = L.marker(
+        [25.42, 86.13], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3e5da10c8cdaec94514c6e34205a720d.bindTooltip(
+        `<div>
+             Begusarai
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9b78b7e6d163a30df25f3fd6adf816da = L.marker(
+        [15.87, 74.5], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9b78b7e6d163a30df25f3fd6adf816da.bindTooltip(
+        `<div>
+             Belgaum
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_deda20a94edb453bb9a9e79e694a6b61 = L.marker(
+        [15.15, 76.93], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_deda20a94edb453bb9a9e79e694a6b61.bindTooltip(
+        `<div>
+             Bellary
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_830bf86aebbfdd2b3996466fde4c0df2 = L.marker(
+        [21.86, 77.93], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_830bf86aebbfdd2b3996466fde4c0df2.bindTooltip(
+        `<div>
+             Betul
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_24f2594800c0af5a4132fc4924b5b2b0 = L.marker(
+        [25.05, 83.62], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_24f2594800c0af5a4132fc4924b5b2b0.bindTooltip(
+        `<div>
+             Bhabua
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_4d0244f4d0a42fcd8ada3d267ec8b0e9 = L.marker(
+        [25.42, 82.57], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_4d0244f4d0a42fcd8ada3d267ec8b0e9.bindTooltip(
+        `<div>
+             Bhadohi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8c8bf431c5b89aeaa74585f2bef0b413 = L.marker(
+        [21.05, 86.52], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8c8bf431c5b89aeaa74585f2bef0b413.bindTooltip(
+        `<div>
+             Bhadrak
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b0d6340c269a145335a38380dab52b8a = L.marker(
+        [25.25, 87.0], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b0d6340c269a145335a38380dab52b8a.bindTooltip(
+        `<div>
+             Bhagalpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_0e62f8f36df837379e1a58f2ec289838 = L.marker(
+        [21.17, 79.65], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_0e62f8f36df837379e1a58f2ec289838.bindTooltip(
+        `<div>
+             Bhandara
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_02f9500ced58a7b28c8bb25aa8983526 = L.marker(
+        [27.22, 77.48], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_02f9500ced58a7b28c8bb25aa8983526.bindTooltip(
+        `<div>
+             Bharatpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f69b377dfb8c3c42d6a27a3f62d7ebbc = L.marker(
+        [21.7, 72.97], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f69b377dfb8c3c42d6a27a3f62d7ebbc.bindTooltip(
+        `<div>
+             Bharuch
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e2102a0bc221292f5b2189e522aa6d6e = L.marker(
+        [21.77, 72.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e2102a0bc221292f5b2189e522aa6d6e.bindTooltip(
+        `<div>
+             Bhavnagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_fbbbc57a3e1c31a31849bd628800ee7b = L.marker(
+        [25.35, 74.63], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_fbbbc57a3e1c31a31849bd628800ee7b.bindTooltip(
+        `<div>
+             Bhilwara
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_de3946bd28a0089d3ce38b6edc41defd = L.marker(
+        [26.56, 78.79], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_de3946bd28a0089d3ce38b6edc41defd.bindTooltip(
+        `<div>
+             Bhind
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3d86a7102ebe76da8e77566d960a5d94 = L.marker(
+        [28.78, 76.13], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3d86a7102ebe76da8e77566d960a5d94.bindTooltip(
+        `<div>
+             Bhiwani
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1dd3f191c05ad406b84ea18ad4472051 = L.marker(
+        [21.65, 84.4], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1dd3f191c05ad406b84ea18ad4472051.bindTooltip(
+        `<div>
+             Bhojpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_047b1493db28e53e6886c6e86213c707 = L.marker(
+        [25.58, 84.13], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_047b1493db28e53e6886c6e86213c707.bindTooltip(
+        `<div>
+             Bhojpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_15f316847a71b2f66f1bad2f4619e5ea = L.marker(
+        [23.27, 77.4], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_15f316847a71b2f66f1bad2f4619e5ea.bindTooltip(
+        `<div>
+             Bhopal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1bebb60c50e7e75ad0f8e945bb5fa8bb = L.marker(
+        [18.98, 75.77], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1bebb60c50e7e75ad0f8e945bb5fa8bb.bindTooltip(
+        `<div>
+             Bid
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_22b4d1d76a83cbe294ad8670e4a8d7a8 = L.marker(
+        [17.9, 77.55], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_22b4d1d76a83cbe294ad8670e4a8d7a8.bindTooltip(
+        `<div>
+             Bidar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e4e771bf83407af907ea3767bf466890 = L.marker(
+        [16.83, 75.7], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e4e771bf83407af907ea3767bf466890.bindTooltip(
+        `<div>
+             Bijapur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3f9d4392499f3402d3b4517e3cea0b17 = L.marker(
+        [29.15, 78.27], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3f9d4392499f3402d3b4517e3cea0b17.bindTooltip(
+        `<div>
+             Bijnor
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8830d2038309e2590a94dac7c0fa28cf = L.marker(
+        [28.02, 73.3], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8830d2038309e2590a94dac7c0fa28cf.bindTooltip(
+        `<div>
+             Bikaner
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3b0763da99bddeed5107539ca28c05ab = L.marker(
+        [22.08, 82.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3b0763da99bddeed5107539ca28c05ab.bindTooltip(
+        `<div>
+             Bilaspur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_20325db66b0848b108b28fe9514000ba = L.marker(
+        [22.38, 88.27], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_20325db66b0848b108b28fe9514000ba.bindTooltip(
+        `<div>
+             Bishnupur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_2b09e39a4570eecbdf160a260b26c446 = L.marker(
+        [22.04, 88.05], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_2b09e39a4570eecbdf160a260b26c446.bindTooltip(
+        `<div>
+             Biswanath
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b1ac62897769127fc10495fcb3a3b9ca = L.marker(
+        [23.78, 85.97], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b1ac62897769127fc10495fcb3a3b9ca.bindTooltip(
+        `<div>
+             Bokaro
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_5eb4fdb602e55ee636f0f4fcb837a860 = L.marker(
+        [26.47, 90.57], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_5eb4fdb602e55ee636f0f4fcb837a860.bindTooltip(
+        `<div>
+             Bongaigaon
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c459eec183e8c3e7a339d8e02e4861db = L.marker(
+        [28.05, 79.12], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c459eec183e8c3e7a339d8e02e4861db.bindTooltip(
+        `<div>
+             Budaun
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3d3a036b2ebea2a81765cdc1de9bcf9a = L.marker(
+        [24.7, 84.98], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3d3a036b2ebea2a81765cdc1de9bcf9a.bindTooltip(
+        `<div>
+             Buddha Gaya
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c74211fba4c9c31237cf8c214d785c34 = L.marker(
+        [28.4, 77.85], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c74211fba4c9c31237cf8c214d785c34.bindTooltip(
+        `<div>
+             Bulandshahr
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8f3bc1b8e2c2982e2831f95ddd6f8b4b = L.marker(
+        [20.53, 76.18], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8f3bc1b8e2c2982e2831f95ddd6f8b4b.bindTooltip(
+        `<div>
+             Buldana
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9e5e68a54f0a773f7cb7a87587ef849c = L.marker(
+        [25.44, 75.64], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9e5e68a54f0a773f7cb7a87587ef849c.bindTooltip(
+        `<div>
+             Bundi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_fa462dd978d3775305dd811d289fac3a = L.marker(
+        [21.3, 76.23], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_fa462dd978d3775305dd811d289fac3a.bindTooltip(
+        `<div>
+             Burhanpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9910db39b22d482c30485f06372043ed = L.marker(
+        [25.58, 83.98], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9910db39b22d482c30485f06372043ed.bindTooltip(
+        `<div>
+             Buxar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a1bfebf128f24019c2b8c7129b5e8130 = L.marker(
+        [22.57, 88.37], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a1bfebf128f24019c2b8c7129b5e8130.bindTooltip(
+        `<div>
+             Calcutta
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_463f240831b263a20dd7486a93c0cb5e = L.marker(
+        [32.57, 76.13], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_463f240831b263a20dd7486a93c0cb5e.bindTooltip(
+        `<div>
+             Chamba
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8576ecc793c94c0c3ecefe4cc764d51f = L.marker(
+        [30.4, 79.35], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8576ecc793c94c0c3ecefe4cc764d51f.bindTooltip(
+        `<div>
+             Chamoli
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_4ed3c3f63319bd4f38ebc4cca4cbacff = L.marker(
+        [29.33, 80.1], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_4ed3c3f63319bd4f38ebc4cca4cbacff.bindTooltip(
+        `<div>
+             Champawat
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6390f40edef085d867816d5e2c74420b = L.marker(
+        [25.27, 83.27], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6390f40edef085d867816d5e2c74420b.bindTooltip(
+        `<div>
+             Chandauli
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_397f02e83af404de1f7548afa9afdf6a = L.marker(
+        [15.73, 73.88], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_397f02e83af404de1f7548afa9afdf6a.bindTooltip(
+        `<div>
+             Chandel
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1b74cebe6ec0da85775fe26c7875409c = L.marker(
+        [30.74, 76.79], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1b74cebe6ec0da85775fe26c7875409c.bindTooltip(
+        `<div>
+             Chandigarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_336f27d8513b5cf3d2559a4e8201ee3d = L.marker(
+        [19.95, 79.3], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_336f27d8513b5cf3d2559a4e8201ee3d.bindTooltip(
+        `<div>
+             Chandrapur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_509e696644c1c340993ee054b6d52e27 = L.marker(
+        [24.22, 84.87], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_509e696644c1c340993ee054b6d52e27.bindTooltip(
+        `<div>
+             Chatra
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b92270d844ae559f4b0d83be9ab0e6e1 = L.marker(
+        [13.08, 80.28], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b92270d844ae559f4b0d83be9ab0e6e1.bindTooltip(
+        `<div>
+             Chennai
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8b72cba3aaef67506d61fccd4d4ecc73 = L.marker(
+        [24.9, 79.6], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8b72cba3aaef67506d61fccd4d4ecc73.bindTooltip(
+        `<div>
+             Chhatarpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7fc511255853104ee08ab163d56906cc = L.marker(
+        [22.07, 78.93], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7fc511255853104ee08ab163d56906cc.bindTooltip(
+        `<div>
+             Chhindwara
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f8f43ad421bb970036e92f5bc66d1faf = L.marker(
+        [13.32, 75.78], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f8f43ad421bb970036e92f5bc66d1faf.bindTooltip(
+        `<div>
+             Chikmagalur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_bfe5d4ab89f0f858ff3a8110013b2f97 = L.marker(
+        [14.23, 76.4], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_bfe5d4ab89f0f858ff3a8110013b2f97.bindTooltip(
+        `<div>
+             Chitradurga
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_18cc0fc01aeaabae7d696ab4c143dfb3 = L.marker(
+        [24.88, 74.63], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_18cc0fc01aeaabae7d696ab4c143dfb3.bindTooltip(
+        `<div>
+             Chittaurgarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3f7fd7718cbad0aea701e9a38e2b5dc1 = L.marker(
+        [13.2, 79.12], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3f7fd7718cbad0aea701e9a38e2b5dc1.bindTooltip(
+        `<div>
+             Chittoor
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_909b5eb275edd10875d0dd87b0e7c6c3 = L.marker(
+        [24.33, 93.67], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_909b5eb275edd10875d0dd87b0e7c6c3.bindTooltip(
+        `<div>
+             Churachandpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1a07de750bfce6845df6710e3422766d = L.marker(
+        [28.3, 74.95], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1a07de750bfce6845df6710e3422766d.bindTooltip(
+        `<div>
+             Churu
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_86398e8c38dcf99f30ea52f96cc81af5 = L.marker(
+        [10.99, 76.96], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_86398e8c38dcf99f30ea52f96cc81af5.bindTooltip(
+        `<div>
+             Coimbatore
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1bdaaf2dd4e75c312e603f44644ae54b = L.marker(
+        [11.75, 79.75], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1bdaaf2dd4e75c312e603f44644ae54b.bindTooltip(
+        `<div>
+             Cuddalore
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3f11974536a85b4d9f91dc89caf524ac = L.marker(
+        [20.5, 85.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3f11974536a85b4d9f91dc89caf524ac.bindTooltip(
+        `<div>
+             Cuttack
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8767c7f41562857fb03c5c00ef743e01 = L.marker(
+        [20.32, 72.97], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8767c7f41562857fb03c5c00ef743e01.bindTooltip(
+        `<div>
+             Dadra
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_4854770885f97890ee816819182a6cf6 = L.marker(
+        [20.42, 72.85], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_4854770885f97890ee816819182a6cf6.bindTooltip(
+        `<div>
+             Daman
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d1743e746da7036fa6056432f52f3a8f = L.marker(
+        [23.83, 79.45], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d1743e746da7036fa6056432f52f3a8f.bindTooltip(
+        `<div>
+             Damoh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_67f6ee258f4ac659a626bde1849b23f3 = L.marker(
+        [26.17, 85.9], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_67f6ee258f4ac659a626bde1849b23f3.bindTooltip(
+        `<div>
+             Darbhanga
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_5d0040c113ac4024aabfcdbc97d0fab9 = L.marker(
+        [27.03, 88.27], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_5d0040c113ac4024aabfcdbc97d0fab9.bindTooltip(
+        `<div>
+             Darjiling
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_51b16eb32aa06cb928c3fa193d39356e = L.marker(
+        [26.63, 92.8], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_51b16eb32aa06cb928c3fa193d39356e.bindTooltip(
+        `<div>
+             Darrang
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6f93770812d5d6bfebb163966f2475ec = L.marker(
+        [25.67, 78.47], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6f93770812d5d6bfebb163966f2475ec.bindTooltip(
+        `<div>
+             Datia
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1d7ef0551f40b6e6072eb726e42f8d64 = L.marker(
+        [26.88, 76.33], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1d7ef0551f40b6e6072eb726e42f8d64.bindTooltip(
+        `<div>
+             Dausa
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_668cfaadab44e64e7dce33c943eee889 = L.marker(
+        [30.32, 78.03], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_668cfaadab44e64e7dce33c943eee889.bindTooltip(
+        `<div>
+             Dehradun
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f6829d7d4e1adf1af9612aeae37df757 = L.marker(
+        [24.48, 86.7], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f6829d7d4e1adf1af9612aeae37df757.bindTooltip(
+        `<div>
+             Deoghar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f3f70934f5a5339a81a04b18a3dfce73 = L.marker(
+        [26.5, 83.79], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f3f70934f5a5339a81a04b18a3dfce73.bindTooltip(
+        `<div>
+             Deoria
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7155587d78df71f2f91851a361e5b0a5 = L.marker(
+        [22.97, 76.07], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7155587d78df71f2f91851a361e5b0a5.bindTooltip(
+        `<div>
+             Dewas
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c47e78238f548cc4ee6fd428a46d56b1 = L.marker(
+        [24.6, 92.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c47e78238f548cc4ee6fd428a46d56b1.bindTooltip(
+        `<div>
+             Dhalai
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ca2bbc985f00b8043c5368fd9fc79e48 = L.marker(
+        [20.71, 81.55], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ca2bbc985f00b8043c5368fd9fc79e48.bindTooltip(
+        `<div>
+             Dhamtari
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b5e2ed5ea7d54f97a80564ebf0099d36 = L.marker(
+        [23.8, 86.45], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b5e2ed5ea7d54f97a80564ebf0099d36.bindTooltip(
+        `<div>
+             Dhanbad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_cf131e246fbf0ec7b90456d093a31451 = L.marker(
+        [22.6, 75.3], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_cf131e246fbf0ec7b90456d093a31451.bindTooltip(
+        `<div>
+             Dhar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6575343d12097014a84c84fa818878a9 = L.marker(
+        [24.37, 92.17], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6575343d12097014a84c84fa818878a9.bindTooltip(
+        `<div>
+             Dharmanagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3f29d1a329d0f2c45ff9b44c1b8e9d39 = L.marker(
+        [12.13, 78.17], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3f29d1a329d0f2c45ff9b44c1b8e9d39.bindTooltip(
+        `<div>
+             Dharmapuri
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1961332ab82f89398fb562aa7ecf7b59 = L.marker(
+        [15.47, 75.02], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1961332ab82f89398fb562aa7ecf7b59.bindTooltip(
+        `<div>
+             Dharwad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1eb8061a8085c26d9092abfe6a62882b = L.marker(
+        [26.7, 77.9], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1eb8061a8085c26d9092abfe6a62882b.bindTooltip(
+        `<div>
+             Dhaulpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_290221a8bc72194cbd72c2df1b2b3ce1 = L.marker(
+        [27.48, 94.58], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_290221a8bc72194cbd72c2df1b2b3ce1.bindTooltip(
+        `<div>
+             Dhemaji
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_45ab0858b73eb984a9fec158281cb0f0 = L.marker(
+        [20.67, 85.6], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_45ab0858b73eb984a9fec158281cb0f0.bindTooltip(
+        `<div>
+             Dhenkanal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_bb8fc32109b5860f950c08b081c53455 = L.marker(
+        [26.03, 89.97], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_bb8fc32109b5860f950c08b081c53455.bindTooltip(
+        `<div>
+             Dhubri
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e044805386adf1f722fd2644617a328c = L.marker(
+        [20.9, 74.78], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e044805386adf1f722fd2644617a328c.bindTooltip(
+        `<div>
+             Dhule
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_85d77e13dca57194b9f24fcd44b59d57 = L.marker(
+        [27.48, 94.9], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_85d77e13dca57194b9f24fcd44b59d57.bindTooltip(
+        `<div>
+             Dibrugarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_beb81562ab455841c084269789f874a6 = L.marker(
+        [25.9, 93.73], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_beb81562ab455841c084269789f874a6.bindTooltip(
+        `<div>
+             Dimapur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_bf9169ccf05b3f953564aff91d78e551 = L.marker(
+        [10.35, 77.95], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_bf9169ccf05b3f953564aff91d78e551.bindTooltip(
+        `<div>
+             Dindigul
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_4db9fdbcbe9b89ba2fc8016c1082cd7b = L.marker(
+        [22.95, 81.08], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_4db9fdbcbe9b89ba2fc8016c1082cd7b.bindTooltip(
+        `<div>
+             Dindori
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_01aa209710c5b2eed5b1be589cbd2c80 = L.marker(
+        [20.7, 70.98], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_01aa209710c5b2eed5b1be589cbd2c80.bindTooltip(
+        `<div>
+             Diu
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ba5617ccc1d432a4ab4365f723c99cb1 = L.marker(
+        [33.13, 75.57], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ba5617ccc1d432a4ab4365f723c99cb1.bindTooltip(
+        `<div>
+             Doda
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e81fb75af627ac0c14618bcc08551879 = L.marker(
+        [22.83, 74.27], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e81fb75af627ac0c14618bcc08551879.bindTooltip(
+        `<div>
+             Dohad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a25e0911888f674ff8065d8d2dd53c92 = L.marker(
+        [24.27, 87.25], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a25e0911888f674ff8065d8d2dd53c92.bindTooltip(
+        `<div>
+             Dumka
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c1b010c8463b8b48e101cfae39eb76e5 = L.marker(
+        [23.83, 73.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c1b010c8463b8b48e101cfae39eb76e5.bindTooltip(
+        `<div>
+             Dungarpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e5612299c47f1d9d9e00c3fdb2b0aa0e = L.marker(
+        [21.18, 81.28], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e5612299c47f1d9d9e00c3fdb2b0aa0e.bindTooltip(
+        `<div>
+             Durg
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c70f7026ab658037e286c2c1d5ac12a7 = L.marker(
+        [22.24, 68.97], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c70f7026ab658037e286c2c1d5ac12a7.bindTooltip(
+        `<div>
+             Dwarka
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a03842a0ba89ddfadfd20a16a7231603 = L.marker(
+        [16.93, 82.22], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a03842a0ba89ddfadfd20a16a7231603.bindTooltip(
+        `<div>
+             East Godavari
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_54b7974e6e4c4c3d2f45c9a1c5fa1965 = L.marker(
+        [8.02, 93.53], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_54b7974e6e4c4c3d2f45c9a1c5fa1965.bindTooltip(
+        `<div>
+             Enounga
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_542fe000c69096316396ebb47aa207be = L.marker(
+        [9.98, 76.28], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_542fe000c69096316396ebb47aa207be.bindTooltip(
+        `<div>
+             Ernakulam
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f83b9fe5cc06fab443fa5fea565dd078 = L.marker(
+        [11.35, 77.73], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f83b9fe5cc06fab443fa5fea565dd078.bindTooltip(
+        `<div>
+             Erode
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_70e64e495671cbaff8e181984f0293d7 = L.marker(
+        [27.63, 78.67], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_70e64e495671cbaff8e181984f0293d7.bindTooltip(
+        `<div>
+             Etah
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6029cd210b9c3ba0d37d0601224cbf0c = L.marker(
+        [26.77, 79.03], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6029cd210b9c3ba0d37d0601224cbf0c.bindTooltip(
+        `<div>
+             Etawah
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_510e1375d57e37b1fa4146ea8e457399 = L.marker(
+        [26.78, 82.13], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_510e1375d57e37b1fa4146ea8e457399.bindTooltip(
+        `<div>
+             Faizabad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a7b9f7651eb8f888315b5e6a9ec9e437 = L.marker(
+        [28.43, 77.32], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a7b9f7651eb8f888315b5e6a9ec9e437.bindTooltip(
+        `<div>
+             Faridabad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_bd4ce71c981c8fc71f2756c7f760b047 = L.marker(
+        [30.67, 74.75], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_bd4ce71c981c8fc71f2756c7f760b047.bindTooltip(
+        `<div>
+             Faridkot
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9b4b7ce70c4e8095348b35d61cdf4bcf = L.marker(
+        [27.4, 79.57], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9b4b7ce70c4e8095348b35d61cdf4bcf.bindTooltip(
+        `<div>
+             Farrukhabad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a1fb21f12b37bc1765747ed6c060287e = L.marker(
+        [29.52, 75.45], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a1fb21f12b37bc1765747ed6c060287e.bindTooltip(
+        `<div>
+             Fatehabad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7f9dee21c0c48cd9b54773104e5f0c5c = L.marker(
+        [30.53, 75.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7f9dee21c0c48cd9b54773104e5f0c5c.bindTooltip(
+        `<div>
+             Fatehgarh Sahib
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e508d8ca359ac746ba83f9769605a75a = L.marker(
+        [29.92, 77.24], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e508d8ca359ac746ba83f9769605a75a.bindTooltip(
+        `<div>
+             Fatehpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e0b0ff16b41222f42badc5bb5dc539c3 = L.marker(
+        [30.4, 74.03], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e0b0ff16b41222f42badc5bb5dc539c3.bindTooltip(
+        `<div>
+             Fazilka
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9908c24f84ade95311f265ee1c8d5f37 = L.marker(
+        [27.15, 78.42], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9908c24f84ade95311f265ee1c8d5f37.bindTooltip(
+        `<div>
+             Firozabad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c932bcf587c0e5177dd98c6a9dfede28 = L.marker(
+        [30.92, 74.6], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c932bcf587c0e5177dd98c6a9dfede28.bindTooltip(
+        `<div>
+             Firozpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_df8df9fb99efbb8845271f8dc459f2aa = L.marker(
+        [15.42, 75.62], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_df8df9fb99efbb8845271f8dc459f2aa.bindTooltip(
+        `<div>
+             Gadag
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_21e55712948ceac590add7d6b155d539 = L.marker(
+        [34.23, 74.78], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_21e55712948ceac590add7d6b155d539.bindTooltip(
+        `<div>
+             Ganderbal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d121438fb6cc38bf7a9a9f00bf360517 = L.marker(
+        [23.22, 72.68], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d121438fb6cc38bf7a9a9f00bf360517.bindTooltip(
+        `<div>
+             Gandhinagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_69b852bb0b8cb11b9a80c14c80a6eafb = L.marker(
+        [29.92, 73.88], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_69b852bb0b8cb11b9a80c14c80a6eafb.bindTooltip(
+        `<div>
+             Ganganagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_db6d5cf01cbe99f3ed7fc1615e6b04a7 = L.marker(
+        [19.32, 84.78], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_db6d5cf01cbe99f3ed7fc1615e6b04a7.bindTooltip(
+        `<div>
+             Ganjam
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f04acc80bb5d4f3f29904121643c79e4 = L.marker(
+        [24.73, 83.22], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f04acc80bb5d4f3f29904121643c79e4.bindTooltip(
+        `<div>
+             Garhwa
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f81e9d72fddda8cd4e459b864ed72193 = L.marker(
+        [29.8, 78.62], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f81e9d72fddda8cd4e459b864ed72193.bindTooltip(
+        `<div>
+             Garhwal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_dcd7c660b784e457291c9c14daf35813 = L.marker(
+        [20.64, 82.06], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_dcd7c660b784e457291c9c14daf35813.bindTooltip(
+        `<div>
+             Gariaband
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_4befe86686ea73edfd2ef16acf811cee = L.marker(
+        [24.78, 85.0], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_4befe86686ea73edfd2ef16acf811cee.bindTooltip(
+        `<div>
+             Gaya
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_4cb8955db9c561c80ca09026fa03585d = L.marker(
+        [10.57, 92.53], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_4cb8955db9c561c80ca09026fa03585d.bindTooltip(
+        `<div>
+             Geinyale
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ffa08572741f31b68dbdb03fe96b9c71 = L.marker(
+        [28.67, 77.43], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ffa08572741f31b68dbdb03fe96b9c71.bindTooltip(
+        `<div>
+             Ghaziabad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_161fb8398f8f67fe98ce30ccd253fc47 = L.marker(
+        [25.58, 83.57], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_161fb8398f8f67fe98ce30ccd253fc47.bindTooltip(
+        `<div>
+             Ghazipur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1f557c5cc6ee4fe6813f7e0c836024b7 = L.marker(
+        [24.18, 86.3], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1f557c5cc6ee4fe6813f7e0c836024b7.bindTooltip(
+        `<div>
+             Giridih
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_bba823d780c900ac052801f3106e0c8c = L.marker(
+        [15.4, 73.8], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_bba823d780c900ac052801f3106e0c8c.bindTooltip(
+        `<div>
+             Goa
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9f3d9ad1cefe3a3b548fe14ad1abd651 = L.marker(
+        [26.17, 90.62], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9f3d9ad1cefe3a3b548fe14ad1abd651.bindTooltip(
+        `<div>
+             Goalpara
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_2b714ecce9806180d6b7934fd975c430 = L.marker(
+        [24.83, 87.22], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_2b714ecce9806180d6b7934fd975c430.bindTooltip(
+        `<div>
+             Godda
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_2aed2e9c6f0ff4d0a37efa7adf8d6d7c = L.marker(
+        [26.52, 93.97], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_2aed2e9c6f0ff4d0a37efa7adf8d6d7c.bindTooltip(
+        `<div>
+             Golaghat
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_52de3f271676011211776817f40360c0 = L.marker(
+        [27.13, 81.93], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_52de3f271676011211776817f40360c0.bindTooltip(
+        `<div>
+             Gonda
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_50c3eca3c0685c4c427ca8e6e2ec16f1 = L.marker(
+        [26.47, 84.43], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_50c3eca3c0685c4c427ca8e6e2ec16f1.bindTooltip(
+        `<div>
+             Gopalganj
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_47f9afbc793f5e139cf5c0cfbc58c10d = L.marker(
+        [29.45, 75.68], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_47f9afbc793f5e139cf5c0cfbc58c10d.bindTooltip(
+        `<div>
+             Gorakhpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_85ad63bdc6c928f37d5cff07f0bded13 = L.marker(
+        [17.33, 76.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_85ad63bdc6c928f37d5cff07f0bded13.bindTooltip(
+        `<div>
+             Gulbarga
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a16bcb4d6f93f506d4b7fcabed5d5b5a = L.marker(
+        [23.05, 84.55], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a16bcb4d6f93f506d4b7fcabed5d5b5a.bindTooltip(
+        `<div>
+             Gumla
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b2696ed5fb761659fc86fb64a324ac5d = L.marker(
+        [24.65, 77.32], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b2696ed5fb761659fc86fb64a324ac5d.bindTooltip(
+        `<div>
+             Guna
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a5ea87084dbf6e6c704de949a54a51c6 = L.marker(
+        [16.3, 80.45], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a5ea87084dbf6e6c704de949a54a51c6.bindTooltip(
+        `<div>
+             Guntur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_11865b5ba9094230ad64b4f7f1a93f0b = L.marker(
+        [32.03, 75.52], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_11865b5ba9094230ad64b4f7f1a93f0b.bindTooltip(
+        `<div>
+             Gurdaspur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_df1765665da5d7277bb7ba82b0fbedab = L.marker(
+        [28.47, 77.03], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_df1765665da5d7277bb7ba82b0fbedab.bindTooltip(
+        `<div>
+             Gurgaon
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_4a0ea77fcdca5decf7409b77cf7ff1d1 = L.marker(
+        [26.22, 78.18], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_4a0ea77fcdca5decf7409b77cf7ff1d1.bindTooltip(
+        `<div>
+             Gwalior
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_cde3c8d43acd03c0c88c676400c18ad0 = L.marker(
+        [24.68, 92.57], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_cde3c8d43acd03c0c88c676400c18ad0.bindTooltip(
+        `<div>
+             Hailakandi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1c7edb398df203f26a3da479e0fe28cd = L.marker(
+        [25.95, 80.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1c7edb398df203f26a3da479e0fe28cd.bindTooltip(
+        `<div>
+             Hamirpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e9d6ebea327ff07179248a4bce74f46a = L.marker(
+        [29.58, 74.32], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e9d6ebea327ff07179248a4bce74f46a.bindTooltip(
+        `<div>
+             Hanumangarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_903b2546ad8e2897fc96dc106879f45c = L.marker(
+        [22.59, 88.31], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_903b2546ad8e2897fc96dc106879f45c.bindTooltip(
+        `<div>
+             Haora
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c72ca72906b4b7b88c42f52350288f98 = L.marker(
+        [28.72, 77.78], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c72ca72906b4b7b88c42f52350288f98.bindTooltip(
+        `<div>
+             Hapur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6f871bd5dc5634a7435d0c94272f848b = L.marker(
+        [22.33, 77.1], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6f871bd5dc5634a7435d0c94272f848b.bindTooltip(
+        `<div>
+             Harda
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a7c02b72c4e4ca6203e2714a7b44b8f2 = L.marker(
+        [27.12, 80.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a7c02b72c4e4ca6203e2714a7b44b8f2.bindTooltip(
+        `<div>
+             Hardoi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b59ca7a535a85246b8c00f098b80606e = L.marker(
+        [29.97, 78.17], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b59ca7a535a85246b8c00f098b80606e.bindTooltip(
+        `<div>
+             Hardwar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_023cfa9c281023e112a8314ba5188c5d = L.marker(
+        [13.0, 76.1], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_023cfa9c281023e112a8314ba5188c5d.bindTooltip(
+        `<div>
+             Hassan
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1524cab080c08bea2daeba787a7f91b5 = L.marker(
+        [14.8, 75.4], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1524cab080c08bea2daeba787a7f91b5.bindTooltip(
+        `<div>
+             Haveri
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_faf0792d139055911a2bc6dbdc0f32cd = L.marker(
+        [23.98, 85.35], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_faf0792d139055911a2bc6dbdc0f32cd.bindTooltip(
+        `<div>
+             Hazaribagh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_43ccccc6ad93da372e05b3a72b17aae8 = L.marker(
+        [19.72, 77.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_43ccccc6ad93da372e05b3a72b17aae8.bindTooltip(
+        `<div>
+             Hingoli
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_2623b94eb343b0c0aad083378c8e060f = L.marker(
+        [29.17, 75.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_2623b94eb343b0c0aad083378c8e060f.bindTooltip(
+        `<div>
+             Hisar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_77d418b7df3e0a1faa18aefac100b058 = L.marker(
+        [26.0, 92.87], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_77d418b7df3e0a1faa18aefac100b058.bindTooltip(
+        `<div>
+             Hojai
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8ab9da9f26187497c8e3c044a5f4446f = L.marker(
+        [22.75, 77.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8ab9da9f26187497c8e3c044a5f4446f.bindTooltip(
+        `<div>
+             Hoshangabad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_787a2f98109e3fe3c4f9963a719c9324 = L.marker(
+        [31.53, 75.92], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_787a2f98109e3fe3c4f9963a719c9324.bindTooltip(
+        `<div>
+             Hoshiarpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e8c8b7edd37ece96bc8dcd965901f026 = L.marker(
+        [22.9, 88.4], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e8c8b7edd37ece96bc8dcd965901f026.bindTooltip(
+        `<div>
+             Hugli
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3d50645e15dc4b0ec22ef5d95c161c18 = L.marker(
+        [9.85, 76.97], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3d50645e15dc4b0ec22ef5d95c161c18.bindTooltip(
+        `<div>
+             Idukki
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a97177daf38b7afbf1002bdf1a7c7509 = L.marker(
+        [24.82, 93.95], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a97177daf38b7afbf1002bdf1a7c7509.bindTooltip(
+        `<div>
+             Imphal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_406c60ed2670182e2b305d766e7f5085 = L.marker(
+        [22.72, 75.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_406c60ed2670182e2b305d766e7f5085.bindTooltip(
+        `<div>
+             Indore
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_2642ad746aa2171ae93455369e55859f = L.marker(
+        [23.17, 79.95], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_2642ad746aa2171ae93455369e55859f.bindTooltip(
+        `<div>
+             Jabalpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9fa68459d53c04d2969968924471be13 = L.marker(
+        [20.27, 86.17], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9fa68459d53c04d2969968924471be13.bindTooltip(
+        `<div>
+             Jagatsinghapur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_cacd0026cfcf20c5b8b10fe5c3a5853a = L.marker(
+        [18.8, 78.93], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_cacd0026cfcf20c5b8b10fe5c3a5853a.bindTooltip(
+        `<div>
+             Jagtial
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_2a91f62c479ba110950636a69e950c01 = L.marker(
+        [26.92, 75.82], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_2a91f62c479ba110950636a69e950c01.bindTooltip(
+        `<div>
+             Jaipur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_889bb992e9df191227c660ec1202674f = L.marker(
+        [26.92, 70.9], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_889bb992e9df191227c660ec1202674f.bindTooltip(
+        `<div>
+             Jaisalmer
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c13ee6d3fdb641319106e055f6a73b1c = L.marker(
+        [31.33, 75.58], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c13ee6d3fdb641319106e055f6a73b1c.bindTooltip(
+        `<div>
+             Jalandhar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_46c064fde9289efd67de420fdcbbeb9a = L.marker(
+        [26.15, 79.35], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_46c064fde9289efd67de420fdcbbeb9a.bindTooltip(
+        `<div>
+             Jalaun
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ae542d483cfda59a8ff1ff7534b3310e = L.marker(
+        [21.05, 76.53], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ae542d483cfda59a8ff1ff7534b3310e.bindTooltip(
+        `<div>
+             Jalgaon
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d89cb74f78772bcc2e0a398e2a4a4e5c = L.marker(
+        [19.83, 75.88], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d89cb74f78772bcc2e0a398e2a4a4e5c.bindTooltip(
+        `<div>
+             Jalna
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_dc33a927b34f27f0635da883ae7a1f82 = L.marker(
+        [25.35, 72.62], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_dc33a927b34f27f0635da883ae7a1f82.bindTooltip(
+        `<div>
+             Jalor
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_77c9760e16228c35a50aff8c891ec38f = L.marker(
+        [26.52, 88.73], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_77c9760e16228c35a50aff8c891ec38f.bindTooltip(
+        `<div>
+             Jalpaiguri
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_2dedbff71ff47188fad2011fd26c9da6 = L.marker(
+        [32.73, 74.87], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_2dedbff71ff47188fad2011fd26c9da6.bindTooltip(
+        `<div>
+             Jammu
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d98a00a72e1a8e0ee5855e83eddb5ea9 = L.marker(
+        [22.47, 70.07], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d98a00a72e1a8e0ee5855e83eddb5ea9.bindTooltip(
+        `<div>
+             Jamnagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_0c60faf889eed826ed534d9f36b8a249 = L.marker(
+        [23.95, 86.8], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_0c60faf889eed826ed534d9f36b8a249.bindTooltip(
+        `<div>
+             Jamtara
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7526cbe7546e3e28a984920c55a03386 = L.marker(
+        [24.92, 86.22], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7526cbe7546e3e28a984920c55a03386.bindTooltip(
+        `<div>
+             Jamui
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3b58cd91e608ad9ac88495148302e0f4 = L.marker(
+        [17.6, 78.88], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3b58cd91e608ad9ac88495148302e0f4.bindTooltip(
+        `<div>
+             Jangaon
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_073278321555402b19d425c746824d24 = L.marker(
+        [22.02, 82.57], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_073278321555402b19d425c746824d24.bindTooltip(
+        `<div>
+             Janjgir
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_fa3fb9ce9da6d549f07ac2244606cebe = L.marker(
+        [22.9, 84.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_fa3fb9ce9da6d549f07ac2244606cebe.bindTooltip(
+        `<div>
+             Jashpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_56cfa82dcae1446bb0790b8144bcca06 = L.marker(
+        [25.73, 82.68], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_56cfa82dcae1446bb0790b8144bcca06.bindTooltip(
+        `<div>
+             Jaunpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ac93ef6968dd11fcaddc1af64fdc0388 = L.marker(
+        [22.77, 74.6], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ac93ef6968dd11fcaddc1af64fdc0388.bindTooltip(
+        `<div>
+             Jhabua
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1de30aa4fc3fbbaf3eaec30f508f2877 = L.marker(
+        [28.62, 76.65], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1de30aa4fc3fbbaf3eaec30f508f2877.bindTooltip(
+        `<div>
+             Jhajjar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_4d8e8fbb31e565257124f4590f67b360 = L.marker(
+        [24.6, 76.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_4d8e8fbb31e565257124f4590f67b360.bindTooltip(
+        `<div>
+             Jhalawar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_669b346b43028d1fb7339f45b6d10a25 = L.marker(
+        [25.43, 78.58], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_669b346b43028d1fb7339f45b6d10a25.bindTooltip(
+        `<div>
+             Jhansi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9ff88220ef6a4adde1d01732c660d50d = L.marker(
+        [22.45, 86.98], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9ff88220ef6a4adde1d01732c660d50d.bindTooltip(
+        `<div>
+             Jhargram
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_baeed46ef95e00f8f447da4d6b4c719b = L.marker(
+        [21.85, 84.03], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_baeed46ef95e00f8f447da4d6b4c719b.bindTooltip(
+        `<div>
+             Jharsuguda
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8a1e4e498f7c06eabc3040063f5c09f1 = L.marker(
+        [28.13, 75.4], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8a1e4e498f7c06eabc3040063f5c09f1.bindTooltip(
+        `<div>
+             Jhunjhunun
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_dfb854f09ea63daac867b8308449e1bd = L.marker(
+        [29.32, 76.32], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_dfb854f09ea63daac867b8308449e1bd.bindTooltip(
+        `<div>
+             Jind
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6e9ecd1b81284708cbb979c622cfd5d0 = L.marker(
+        [26.29, 73.03], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6e9ecd1b81284708cbb979c622cfd5d0.bindTooltip(
+        `<div>
+             Jodhpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_80ab3a22344d130606b84d5634b4e5d5 = L.marker(
+        [26.75, 94.22], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_80ab3a22344d130606b84d5634b4e5d5.bindTooltip(
+        `<div>
+             Jorhat
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1b3089816dcf40dad5745931b356f2df = L.marker(
+        [21.52, 70.47], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1b3089816dcf40dad5745931b356f2df.bindTooltip(
+        `<div>
+             Junagadh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f04bdc2a1785068ecfce3aef7035cdc1 = L.marker(
+        [14.47, 78.82], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f04bdc2a1785068ecfce3aef7035cdc1.bindTooltip(
+        `<div>
+             Kadapa
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_643c9cbe3a33d5c0509bfe0636be7c63 = L.marker(
+        [29.8, 76.38], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_643c9cbe3a33d5c0509bfe0636be7c63.bindTooltip(
+        `<div>
+             Kaithal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_57cd18643d24055f4a78decc845d967d = L.marker(
+        [24.48, 93.98], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_57cd18643d24055f4a78decc845d967d.bindTooltip(
+        `<div>
+             Kakching
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_5c416098346ca55460a949bb4c5fa2fb = L.marker(
+        [12.83, 79.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_5c416098346ca55460a949bb4c5fa2fb.bindTooltip(
+        `<div>
+             Kancheepuram
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_45a026ce4377ebe30ddaf2587a70ae0d = L.marker(
+        [25.13, 93.97], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_45a026ce4377ebe30ddaf2587a70ae0d.bindTooltip(
+        `<div>
+             Kangpokpi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_2340aaa551b900af046dc65819500d8a = L.marker(
+        [32.1, 76.27], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_2340aaa551b900af046dc65819500d8a.bindTooltip(
+        `<div>
+             Kangra
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d3764910672ca9e216ddaaa6c40aff4b = L.marker(
+        [20.27, 81.49], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d3764910672ca9e216ddaaa6c40aff4b.bindTooltip(
+        `<div>
+             Kanker
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_0f83d6cd37aac75018bcda1418369528 = L.marker(
+        [27.07, 79.92], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_0f83d6cd37aac75018bcda1418369528.bindTooltip(
+        `<div>
+             Kannauj
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1077483f979ac3a9279cfd4c14202318 = L.marker(
+        [8.08, 77.55], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1077483f979ac3a9279cfd4c14202318.bindTooltip(
+        `<div>
+             Kanniyakumari
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c2d73a8aab06d44fa794f03d1196b864 = L.marker(
+        [11.87, 75.37], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c2d73a8aab06d44fa794f03d1196b864.bindTooltip(
+        `<div>
+             Kannur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_dc08285a522979a918203579f83ef628 = L.marker(
+        [20.42, 85.17], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_dc08285a522979a918203579f83ef628.bindTooltip(
+        `<div>
+             Kanpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a70d1b3755dac33bab161907ec467373 = L.marker(
+        [26.58, 80.75], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a70d1b3755dac33bab161907ec467373.bindTooltip(
+        `<div>
+             Kantha
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8f21fea0ad7de0b08142bdb2ac3de046 = L.marker(
+        [31.38, 75.38], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8f21fea0ad7de0b08142bdb2ac3de046.bindTooltip(
+        `<div>
+             Kapurthala
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_51c40b93001b65e3fa11ceed0007f791 = L.marker(
+        [10.92, 79.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_51c40b93001b65e3fa11ceed0007f791.bindTooltip(
+        `<div>
+             Karaikal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9890b8bf4d89e3d2002356cb49a804a8 = L.marker(
+        [26.5, 77.02], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9890b8bf4d89e3d2002356cb49a804a8.bindTooltip(
+        `<div>
+             Karauli
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ba7c4e2fadae21433a03cdadac279c3a = L.marker(
+        [34.57, 76.1], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ba7c4e2fadae21433a03cdadac279c3a.bindTooltip(
+        `<div>
+             Kargil
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_fec4674420c839c2c1bfae671c21d34d = L.marker(
+        [24.87, 92.35], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_fec4674420c839c2c1bfae671c21d34d.bindTooltip(
+        `<div>
+             Karimganj
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_4c07f6422598a478b33df1d862355fa5 = L.marker(
+        [18.43, 79.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_4c07f6422598a478b33df1d862355fa5.bindTooltip(
+        `<div>
+             Karimnagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_63b4aa1751a05ea248a8648afc47359e = L.marker(
+        [29.68, 76.98], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_63b4aa1751a05ea248a8648afc47359e.bindTooltip(
+        `<div>
+             Karnal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ac6d4f0ad248798a055ea84f2d1dc23b = L.marker(
+        [10.95, 78.08], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ac6d4f0ad248798a055ea84f2d1dc23b.bindTooltip(
+        `<div>
+             Karur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8e960fdb3f313f9f56764e6e56f7638d = L.marker(
+        [12.5, 75.0], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8e960fdb3f313f9f56764e6e56f7638d.bindTooltip(
+        `<div>
+             Kasaragod
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b6e8f26c62c58a0b4e1ca7f1a9705227 = L.marker(
+        [32.37, 75.52], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b6e8f26c62c58a0b4e1ca7f1a9705227.bindTooltip(
+        `<div>
+             Kathua
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_0b26ac1846f52e8a48a1ec3ca23d098a = L.marker(
+        [25.53, 87.58], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_0b26ac1846f52e8a48a1ec3ca23d098a.bindTooltip(
+        `<div>
+             Katihar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_01e8b8a7b2e184c956f01c84747356eb = L.marker(
+        [20.3, 85.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_01e8b8a7b2e184c956f01c84747356eb.bindTooltip(
+        `<div>
+             Katni
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e3de44402e62cbc58c4f1252e7a3c51f = L.marker(
+        [10.57, 72.62], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e3de44402e62cbc58c4f1252e7a3c51f.bindTooltip(
+        `<div>
+             Kavaratti
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a540915ad2241f28d19b8fcd9a6d1d63 = L.marker(
+        [20.5, 86.42], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a540915ad2241f28d19b8fcd9a6d1d63.bindTooltip(
+        `<div>
+             Kendrapara
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_5520575475589e65351912b2c328f9a7 = L.marker(
+        [25.5, 86.48], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_5520575475589e65351912b2c328f9a7.bindTooltip(
+        `<div>
+             Khagaria
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_26ba4bf89279a2d73fcc1e33baacf029 = L.marker(
+        [17.25, 80.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_26ba4bf89279a2d73fcc1e33baacf029.bindTooltip(
+        `<div>
+             Khammam
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f48432391275fa9b9e6a0bd86417c5f6 = L.marker(
+        [21.83, 76.33], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f48432391275fa9b9e6a0bd86417c5f6.bindTooltip(
+        `<div>
+             Khandwa
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_391195e382667d33ad294f4d2d63cef8 = L.marker(
+        [21.82, 75.6], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_391195e382667d33ad294f4d2d63cef8.bindTooltip(
+        `<div>
+             Khargone
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_dc8ab7d2ac67925bf85e3bb89d9dc06b = L.marker(
+        [22.75, 72.68], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_dc8ab7d2ac67925bf85e3bb89d9dc06b.bindTooltip(
+        `<div>
+             Kheda
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ca70120653830dcbd5d5f7c2b098b116 = L.marker(
+        [27.9, 80.8], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ca70120653830dcbd5d5f7c2b098b116.bindTooltip(
+        `<div>
+             Kheri
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ef30819c5ef433dde9a8a522be9956f5 = L.marker(
+        [20.18, 85.62], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ef30819c5ef433dde9a8a522be9956f5.bindTooltip(
+        `<div>
+             Khordha
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_56a446d382b355848dc92ba6c267e7c2 = L.marker(
+        [24.1, 91.63], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_56a446d382b355848dc92ba6c267e7c2.bindTooltip(
+        `<div>
+             Khowai
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7482a9d72d2a8f459ef2ed4e13e0962a = L.marker(
+        [23.08, 85.28], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7482a9d72d2a8f459ef2ed4e13e0962a.bindTooltip(
+        `<div>
+             Khunti
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a3e2b3502b08886dd7a993f7a3542d1c = L.marker(
+        [26.12, 87.93], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a3e2b3502b08886dd7a993f7a3542d1c.bindTooltip(
+        `<div>
+             Kishanganj
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d3e722bfb6869471ed0d9de00c1333f2 = L.marker(
+        [33.32, 75.77], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d3e722bfb6869471ed0d9de00c1333f2.bindTooltip(
+        `<div>
+             Kishtwar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_479fe1d8b1c804013899c87892ba88fe = L.marker(
+        [26.32, 89.43], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_479fe1d8b1c804013899c87892ba88fe.bindTooltip(
+        `<div>
+             Koch Bihar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9b3356a31ed1d413c2b94fcdfc4f6c93 = L.marker(
+        [24.43, 85.52], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9b3356a31ed1d413c2b94fcdfc4f6c93.bindTooltip(
+        `<div>
+             Kodarma
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d95a593a348d0f81954d5f0adfd42021 = L.marker(
+        [25.67, 94.12], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d95a593a348d0f81954d5f0adfd42021.bindTooltip(
+        `<div>
+             Kohima
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_afe4c5dfed1be72b0243d5cee87bda2d = L.marker(
+        [26.4, 90.27], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_afe4c5dfed1be72b0243d5cee87bda2d.bindTooltip(
+        `<div>
+             Kokrajhar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_35b5baa906a20142b914d3689fc35c14 = L.marker(
+        [13.13, 78.13], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_35b5baa906a20142b914d3689fc35c14.bindTooltip(
+        `<div>
+             Kolar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_927e56c9f44bc74737af99eca9f840e7 = L.marker(
+        [16.7, 74.22], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_927e56c9f44bc74737af99eca9f840e7.bindTooltip(
+        `<div>
+             Kolhapur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_938cd106763cdc72281de78b06640bd0 = L.marker(
+        [22.57, 88.37], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_938cd106763cdc72281de78b06640bd0.bindTooltip(
+        `<div>
+             Kolkata
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b66aacb7342044788eb60925baf2666e = L.marker(
+        [8.88, 76.59], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b66aacb7342044788eb60925baf2666e.bindTooltip(
+        `<div>
+             Kollam
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_72bff7f58137d84e12a21bf218a23c1b = L.marker(
+        [19.6, 81.67], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_72bff7f58137d84e12a21bf218a23c1b.bindTooltip(
+        `<div>
+             Kondagaon
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_bd95b97992b771d915f35dfd1b0215ac = L.marker(
+        [15.35, 76.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_bd95b97992b771d915f35dfd1b0215ac.bindTooltip(
+        `<div>
+             Koppal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_192ffb48b76eb6978aa8f7ee3514fbea = L.marker(
+        [18.82, 82.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_192ffb48b76eb6978aa8f7ee3514fbea.bindTooltip(
+        `<div>
+             Koraput
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_2466c3af9b4ab9bdcb2a149411bd391f = L.marker(
+        [22.35, 82.68], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_2466c3af9b4ab9bdcb2a149411bd391f.bindTooltip(
+        `<div>
+             Korba
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_bcce6bab3c0d9565da8064d096b64823 = L.marker(
+        [25.18, 75.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_bcce6bab3c0d9565da8064d096b64823.bindTooltip(
+        `<div>
+             Kota
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_60df946a2a12300b1415328da012c684 = L.marker(
+        [9.58, 76.52], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_60df946a2a12300b1415328da012c684.bindTooltip(
+        `<div>
+             Kottayam
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_2a44c53b1661abe90d2a4c1253b6e1c1 = L.marker(
+        [11.25, 75.77], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_2a44c53b1661abe90d2a4c1253b6e1c1.bindTooltip(
+        `<div>
+             Kozhikode
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_5752e07cb0784982321b5315a80ac6c0 = L.marker(
+        [16.17, 81.13], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_5752e07cb0784982321b5315a80ac6c0.bindTooltip(
+        `<div>
+             Krishna
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_699c81623d078a25eaa13705e8e25fee = L.marker(
+        [12.53, 78.23], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_699c81623d078a25eaa13705e8e25fee.bindTooltip(
+        `<div>
+             Krishnagiri
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_19b4b5e7cb4155a5ed01c1b9cfd70ff5 = L.marker(
+        [33.65, 75.02], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_19b4b5e7cb4155a5ed01c1b9cfd70ff5.bindTooltip(
+        `<div>
+             Kulgam
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_40da98806a67ef7ed85643417bfadc7f = L.marker(
+        [34.03, 74.26], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_40da98806a67ef7ed85643417bfadc7f.bindTooltip(
+        `<div>
+             Kupwara
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a77fc670d0f96b4508903673354b1eee = L.marker(
+        [15.83, 78.05], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a77fc670d0f96b4508903673354b1eee.bindTooltip(
+        `<div>
+             Kurnool
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_60f75282b05ad61662253a892683bd69 = L.marker(
+        [7.17, 93.87], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_60f75282b05ad61662253a892683bd69.bindTooltip(
+        `<div>
+             Laful
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e8889b043ddf4216de4746b46c4b1625 = L.marker(
+        [27.95, 80.77], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e8889b043ddf4216de4746b46c4b1625.bindTooltip(
+        `<div>
+             Lakhimpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ce073074649433073773d02f2cf49105 = L.marker(
+        [25.18, 86.08], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ce073074649433073773d02f2cf49105.bindTooltip(
+        `<div>
+             Lakhisarai
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8b8df28ae6f22f2859dd77cd095671c3 = L.marker(
+        [24.68, 78.42], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8b8df28ae6f22f2859dd77cd095671c3.bindTooltip(
+        `<div>
+             Lalitpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6d5f117d70e34e96f52200d033a9ebe1 = L.marker(
+        [23.75, 84.5], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6d5f117d70e34e96f52200d033a9ebe1.bindTooltip(
+        `<div>
+             Latehar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8fb96d17b424b07b152943f59a90c83f = L.marker(
+        [18.4, 76.58], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8fb96d17b424b07b152943f59a90c83f.bindTooltip(
+        `<div>
+             Latur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ed8fb11f0b8b215c9ebbc913326f7f1a = L.marker(
+        [22.53, 92.9], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ed8fb11f0b8b215c9ebbc913326f7f1a.bindTooltip(
+        `<div>
+             Lawngtlai
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c53db92d3fd2da529c3365bb04b1f218 = L.marker(
+        [34.17, 77.58], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c53db92d3fd2da529c3365bb04b1f218.bindTooltip(
+        `<div>
+             Leh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f0570984b5370633302a031df9186a16 = L.marker(
+        [23.43, 84.68], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f0570984b5370633302a031df9186a16.bindTooltip(
+        `<div>
+             Lohardaga
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7cfd25bd25a61adda4c588582f32b4e9 = L.marker(
+        [26.85, 80.92], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7cfd25bd25a61adda4c588582f32b4e9.bindTooltip(
+        `<div>
+             Lucknow
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ff5edfa78c7882634a65e2276409edf4 = L.marker(
+        [30.9, 75.85], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ff5edfa78c7882634a65e2276409edf4.bindTooltip(
+        `<div>
+             Ludhiana
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_5460c2fbbede52774a8a060c935b8771 = L.marker(
+        [22.88, 92.73], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_5460c2fbbede52774a8a060c935b8771.bindTooltip(
+        `<div>
+             Lunglei
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3b4486d4042aee4ce7a0d358fb659b64 = L.marker(
+        [26.37, 86.08], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3b4486d4042aee4ce7a0d358fb659b64.bindTooltip(
+        `<div>
+             Madhubani
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_50300b1f8399fafab45da544b9d20cb4 = L.marker(
+        [9.93, 78.12], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_50300b1f8399fafab45da544b9d20cb4.bindTooltip(
+        `<div>
+             Madurai
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f78ffe2a42e1e561b1a18f39bbede74c = L.marker(
+        [22.07, 88.44], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f78ffe2a42e1e561b1a18f39bbede74c.bindTooltip(
+        `<div>
+             Mahamaya
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_5a7291fab9786220addeaa6e66ef3b30 = L.marker(
+        [21.1, 82.1], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_5a7291fab9786220addeaa6e66ef3b30.bindTooltip(
+        `<div>
+             Mahasamund
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9e2be0e85d65dee767cd198ccedbbaf7 = L.marker(
+        [11.7, 75.53], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9e2be0e85d65dee767cd198ccedbbaf7.bindTooltip(
+        `<div>
+             Mahe
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c13c916e2d036b425a6c7269d932be3e = L.marker(
+        [28.28, 76.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c13c916e2d036b425a6c7269d932be3e.bindTooltip(
+        `<div>
+             Mahendragarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_266ffaf50766fe6842937f2e1500d6f9 = L.marker(
+        [23.6, 72.4], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_266ffaf50766fe6842937f2e1500d6f9.bindTooltip(
+        `<div>
+             Mahesana
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f4ba301ac9b63724fc2507e829427701 = L.marker(
+        [25.28, 79.87], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f4ba301ac9b63724fc2507e829427701.bindTooltip(
+        `<div>
+             Mahoba
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7e69e5e1b3fc78663ef7d46c916ce511 = L.marker(
+        [27.23, 79.02], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7e69e5e1b3fc78663ef7d46c916ce511.bindTooltip(
+        `<div>
+             Mainpuri
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9c52545f601bc1356dfef413783ff598 = L.marker(
+        [26.95, 94.17], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9c52545f601bc1356dfef413783ff598.bindTooltip(
+        `<div>
+             Majuli
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_96efe1ca1b6f367520df9aa74f05614b = L.marker(
+        [11.07, 76.07], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_96efe1ca1b6f367520df9aa74f05614b.bindTooltip(
+        `<div>
+             Malappuram
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8d9dcdb354161630b06126f74ba45c88 = L.marker(
+        [25.03, 88.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8d9dcdb354161630b06126f74ba45c88.bindTooltip(
+        `<div>
+             Maldah
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7113bffb04b7ce553cdea340c88ad70a = L.marker(
+        [18.35, 81.9], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7113bffb04b7ce553cdea340c88ad70a.bindTooltip(
+        `<div>
+             Malkangiri
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_006b9a173582475d202cdbc7b5ba7c65 = L.marker(
+        [23.93, 92.48], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_006b9a173582475d202cdbc7b5ba7c65.bindTooltip(
+        `<div>
+             Mamit
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6e0e83656314c8095f3c59b46a912ef3 = L.marker(
+        [18.87, 79.43], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6e0e83656314c8095f3c59b46a912ef3.bindTooltip(
+        `<div>
+             Mancherial
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_4b4861a55b769a6a656d52bd0ea278ae = L.marker(
+        [31.72, 76.92], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_4b4861a55b769a6a656d52bd0ea278ae.bindTooltip(
+        `<div>
+             Mandi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_74cab45aabbbabd50c55fdd42547262a = L.marker(
+        [22.6, 80.38], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_74cab45aabbbabd50c55fdd42547262a.bindTooltip(
+        `<div>
+             Mandla
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d87c4ccf56daeca537cf299591f0efc8 = L.marker(
+        [24.07, 75.07], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d87c4ccf56daeca537cf299591f0efc8.bindTooltip(
+        `<div>
+             Mandsaur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3d4fafe3c510f29acaa856ae006cde70 = L.marker(
+        [12.52, 76.9], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3d4fafe3c510f29acaa856ae006cde70.bindTooltip(
+        `<div>
+             Mandya
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_de68777bd3bc5c88bda236c5d74fb09b = L.marker(
+        [29.98, 75.38], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_de68777bd3bc5c88bda236c5d74fb09b.bindTooltip(
+        `<div>
+             Mansa
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3795ba41fe3b920bfd5be151c37f0c93 = L.marker(
+        [27.5, 77.68], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3795ba41fe3b920bfd5be151c37f0c93.bindTooltip(
+        `<div>
+             Mathura
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7b3ed28b6afed70cf73320d822d56efc = L.marker(
+        [25.94, 83.56], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7b3ed28b6afed70cf73320d822d56efc.bindTooltip(
+        `<div>
+             Mau
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f3700a71b163720d625cc82ec125e68f = L.marker(
+        [21.94, 86.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f3700a71b163720d625cc82ec125e68f.bindTooltip(
+        `<div>
+             Mayurbhanj
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_2e53bfdd9f348793f4ca4495130dd40f = L.marker(
+        [18.03, 78.27], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_2e53bfdd9f348793f4ca4495130dd40f.bindTooltip(
+        `<div>
+             Medak
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ccc46761e8cad2c00193c6ee03e6a2e0 = L.marker(
+        [17.63, 78.48], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ccc46761e8cad2c00193c6ee03e6a2e0.bindTooltip(
+        `<div>
+             Medchal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_50a55a07ec909dc235422b5aa6727ebf = L.marker(
+        [22.43, 87.33], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_50a55a07ec909dc235422b5aa6727ebf.bindTooltip(
+        `<div>
+             Medinipur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_970df28cf4794e8b6e6eff79142ffeb6 = L.marker(
+        [28.98, 77.7], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_970df28cf4794e8b6e6eff79142ffeb6.bindTooltip(
+        `<div>
+             Meerut
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c78dbd7465e96499f0d275d1f517e0e3 = L.marker(
+        [25.15, 82.58], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c78dbd7465e96499f0d275d1f517e0e3.bindTooltip(
+        `<div>
+             Mirzapur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_95c11956cf938ed7b0f718d655a32eeb = L.marker(
+        [30.8, 75.17], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_95c11956cf938ed7b0f718d655a32eeb.bindTooltip(
+        `<div>
+             Moga
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e66c397829125694aa92219bb7d5ea2a = L.marker(
+        [26.33, 94.53], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e66c397829125694aa92219bb7d5ea2a.bindTooltip(
+        `<div>
+             Mokokchung
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_cb6f8fd77959b9af5530979341289f72 = L.marker(
+        [26.75, 95.1], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_cb6f8fd77959b9af5530979341289f72.bindTooltip(
+        `<div>
+             Mon
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f30c5285c55b7a7e0c912fd90fa501bc = L.marker(
+        [28.83, 78.78], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f30c5285c55b7a7e0c912fd90fa501bc.bindTooltip(
+        `<div>
+             Moradabad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_26596ac1ba00bb09d8f55ebf4ce0cdf5 = L.marker(
+        [22.82, 70.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_26596ac1ba00bb09d8f55ebf4ce0cdf5.bindTooltip(
+        `<div>
+             Morbi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_93cf0c5d37b5b6b2c746ab3542f15b44 = L.marker(
+        [26.5, 78.0], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_93cf0c5d37b5b6b2c746ab3542f15b44.bindTooltip(
+        `<div>
+             Morena
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9860da5c97806fd41ef2042a35d6eefc = L.marker(
+        [8.17, 93.52], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9860da5c97806fd41ef2042a35d6eefc.bindTooltip(
+        `<div>
+             Moshoit
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d19ea73ea301f3d85b4bb91ccaa60991 = L.marker(
+        [30.48, 74.52], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d19ea73ea301f3d85b4bb91ccaa60991.bindTooltip(
+        `<div>
+             Muktsar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a6a53f4d7d924374f039e5773c392dbc = L.marker(
+        [18.98, 72.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a6a53f4d7d924374f039e5773c392dbc.bindTooltip(
+        `<div>
+             Mumbai
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_04bfd932772bbb42193a381c32c0bf29 = L.marker(
+        [22.07, 81.68], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_04bfd932772bbb42193a381c32c0bf29.bindTooltip(
+        `<div>
+             Mungeli
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_fee4142f9e7a3ef63a8fa0613476b97f = L.marker(
+        [25.38, 86.47], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_fee4142f9e7a3ef63a8fa0613476b97f.bindTooltip(
+        `<div>
+             Munger
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_99722460160bd79ac084babe3a7ff933 = L.marker(
+        [24.18, 88.27], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_99722460160bd79ac084babe3a7ff933.bindTooltip(
+        `<div>
+             Murshidabad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9077474869a45da7062743a12d516a41 = L.marker(
+        [29.47, 77.68], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9077474869a45da7062743a12d516a41.bindTooltip(
+        `<div>
+             Muzaffarnagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_85d03ef70a3410ce780c917fffb6a149 = L.marker(
+        [26.12, 85.4], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_85d03ef70a3410ce780c917fffb6a149.bindTooltip(
+        `<div>
+             Muzaffarpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1ddb912a00694e36eddc62b4239cd230 = L.marker(
+        [12.31, 76.65], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1ddb912a00694e36eddc62b4239cd230.bindTooltip(
+        `<div>
+             Mysore
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6098356fbd9b1ef4a68b4888dc6c7620 = L.marker(
+        [23.42, 88.37], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6098356fbd9b1ef4a68b4888dc6c7620.bindTooltip(
+        `<div>
+             Nadia
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_bc034a8770e5378bcece07a9044919bb = L.marker(
+        [17.47, 73.62], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_bc034a8770e5378bcece07a9044919bb.bindTooltip(
+        `<div>
+             Nagaon
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_61b5a97904cf16e5d6deb7fda825d0e6 = L.marker(
+        [10.77, 79.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_61b5a97904cf16e5d6deb7fda825d0e6.bindTooltip(
+        `<div>
+             Nagapattinam
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c1c6cd38ea8cdaa6d2bdcebbfb376776 = L.marker(
+        [23.27, 82.45], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c1c6cd38ea8cdaa6d2bdcebbfb376776.bindTooltip(
+        `<div>
+             Nagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_4a7f09156b154437a0a64861949f85fb = L.marker(
+        [27.43, 77.1], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_4a7f09156b154437a0a64861949f85fb.bindTooltip(
+        `<div>
+             Nagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d7ffb336b7b20c04be3fd83861af84af = L.marker(
+        [27.2, 73.73], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d7ffb336b7b20c04be3fd83861af84af.bindTooltip(
+        `<div>
+             Nagaur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_aec032c920be9be951e1c1ac2c1b668c = L.marker(
+        [21.15, 79.1], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_aec032c920be9be951e1c1ac2c1b668c.bindTooltip(
+        `<div>
+             Nagpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ab31cb5d18f0a8e6ef7517bc968c641f = L.marker(
+        [26.42, 91.43], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ab31cb5d18f0a8e6ef7517bc968c641f.bindTooltip(
+        `<div>
+             Nalbari
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_31a058215ad1ae3a16526892b18463a1 = L.marker(
+        [17.05, 79.27], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_31a058215ad1ae3a16526892b18463a1.bindTooltip(
+        `<div>
+             Nalgonda
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d8087d89b903006f24ce60f8ff9e8bb1 = L.marker(
+        [11.23, 78.17], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d8087d89b903006f24ce60f8ff9e8bb1.bindTooltip(
+        `<div>
+             Namakkal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_be5a8dedcd0e526e2d9dfddab9a1132d = L.marker(
+        [19.15, 77.33], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_be5a8dedcd0e526e2d9dfddab9a1132d.bindTooltip(
+        `<div>
+             Nanded
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f92111c52ceac31ac9a4cbd46b06fdcf = L.marker(
+        [13.33, 77.65], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f92111c52ceac31ac9a4cbd46b06fdcf.bindTooltip(
+        `<div>
+             Nandi Hills
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_89db7d5adfb30276d54d606db28dc47b = L.marker(
+        [21.37, 74.25], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_89db7d5adfb30276d54d606db28dc47b.bindTooltip(
+        `<div>
+             Nandurbar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_60973696f1735eeb1c16d6941cbc3908 = L.marker(
+        [16.73, 77.5], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_60973696f1735eeb1c16d6941cbc3908.bindTooltip(
+        `<div>
+             Narayanpet
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ec06d8e9415769de6e53abbe473bec65 = L.marker(
+        [26.37, 76.63], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ec06d8e9415769de6e53abbe473bec65.bindTooltip(
+        `<div>
+             Narayanpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_0231ee047a88c7a88ede4736ded6bbc4 = L.marker(
+        [21.22, 73.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_0231ee047a88c7a88ede4736ded6bbc4.bindTooltip(
+        `<div>
+             Narayanpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8ec1f7aa95c314c9f6c7016b8e963d44 = L.marker(
+        [22.95, 79.2], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8ec1f7aa95c314c9f6c7016b8e963d44.bindTooltip(
+        `<div>
+             Narsimhapur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d23f8bce10252178b04178004aa793c6 = L.marker(
+        [20.85, 72.92], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d23f8bce10252178b04178004aa793c6.bindTooltip(
+        `<div>
+             Navsari
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_425969b79af9d523d3d0effc3ef201a5 = L.marker(
+        [24.88, 85.53], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_425969b79af9d523d3d0effc3ef201a5.bindTooltip(
+        `<div>
+             Nawada
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_52b2368e3c7db60c8a9f3df2fbee14e6 = L.marker(
+        [20.13, 85.1], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_52b2368e3c7db60c8a9f3df2fbee14e6.bindTooltip(
+        `<div>
+             Nayagarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_75b8114e1392c16450d939caa84e67e5 = L.marker(
+        [24.48, 74.87], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_75b8114e1392c16450d939caa84e67e5.bindTooltip(
+        `<div>
+             Neemuch
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_23a6c387a0351e5afd0994e2894c6578 = L.marker(
+        [14.43, 79.97], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_23a6c387a0351e5afd0994e2894c6578.bindTooltip(
+        `<div>
+             Nellore
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3a7ea08487f3b8a2f9b353b58239887d = L.marker(
+        [28.6, 77.2], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3a7ea08487f3b8a2f9b353b58239887d.bindTooltip(
+        `<div>
+             New Delhi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e7aa460cc65c253413a3c61a4f86a79b = L.marker(
+        [19.1, 78.35], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e7aa460cc65c253413a3c61a4f86a79b.bindTooltip(
+        `<div>
+             Nirmal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d7a2c37cf52896f18cda7fe9082ae232 = L.marker(
+        [28.88, 77.53], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d7a2c37cf52896f18cda7fe9082ae232.bindTooltip(
+        `<div>
+             Niwari
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_72a414bb4e24bc44ebeb6f8f834a8db1 = L.marker(
+        [18.67, 78.12], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_72a414bb4e24bc44ebeb6f8f834a8db1.bindTooltip(
+        `<div>
+             Nizamabad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ac92a2ced9262c7b0db1af81c6386054 = L.marker(
+        [26.2, 91.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ac92a2ced9262c7b0db1af81c6386054.bindTooltip(
+        `<div>
+             North Gauhati
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7fbabef2cde0fba13219064283ffd292 = L.marker(
+        [26.2, 91.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7fbabef2cde0fba13219064283ffd292.bindTooltip(
+        `<div>
+             North Guwahati
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_60aeeac8b6ec2ae4970abc0dee3d765c = L.marker(
+        [18.17, 76.05], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_60aeeac8b6ec2ae4970abc0dee3d765c.bindTooltip(
+        `<div>
+             Osmanabad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_688889ef2cec5f7eb881d975d3dff34d = L.marker(
+        [10.77, 76.65], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_688889ef2cec5f7eb881d975d3dff34d.bindTooltip(
+        `<div>
+             Palakkad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1042f70c711f86362c67d21c4ca3e4ef = L.marker(
+        [19.68, 72.75], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1042f70c711f86362c67d21c4ca3e4ef.bindTooltip(
+        `<div>
+             Palghar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_46a6d56aa82448f2f968d2012768fcc0 = L.marker(
+        [25.77, 73.33], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_46a6d56aa82448f2f968d2012768fcc0.bindTooltip(
+        `<div>
+             Pali
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a69d158c7e89ac31f834123f8351603a = L.marker(
+        [28.15, 77.33], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a69d158c7e89ac31f834123f8351603a.bindTooltip(
+        `<div>
+             Palwal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_78baf214714618dd46382ab73e9a1060 = L.marker(
+        [29.39, 76.97], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_78baf214714618dd46382ab73e9a1060.bindTooltip(
+        `<div>
+             Panipat
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_da28a954c18a03a6a88906a80edae586 = L.marker(
+        [24.72, 80.2], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_da28a954c18a03a6a88906a80edae586.bindTooltip(
+        `<div>
+             Panna
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_912ca2b34e8d9dc572844ee597f129b6 = L.marker(
+        [19.27, 76.78], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_912ca2b34e8d9dc572844ee597f129b6.bindTooltip(
+        `<div>
+             Parbhani
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8d71b93e49580d102451de94719f1711 = L.marker(
+        [23.83, 72.12], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8d71b93e49580d102451de94719f1711.bindTooltip(
+        `<div>
+             Patan
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_083286d1a9419bc1905c8fb2a9fab96d = L.marker(
+        [9.27, 76.78], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_083286d1a9419bc1905c8fb2a9fab96d.bindTooltip(
+        `<div>
+             Pathanamthitta
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_215e41438833632268685ba54542f95d = L.marker(
+        [32.28, 75.65], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_215e41438833632268685ba54542f95d.bindTooltip(
+        `<div>
+             Pathankot
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e73745726485a6f07b600859eeb7754d = L.marker(
+        [30.33, 76.4], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e73745726485a6f07b600859eeb7754d.bindTooltip(
+        `<div>
+             Patiala
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3bb4cfab8116558fd934c2bd8de965f1 = L.marker(
+        [25.6, 85.12], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3bb4cfab8116558fd934c2bd8de965f1.bindTooltip(
+        `<div>
+             Patna
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_0b002e43762615207a2ef41420fe5ba6 = L.marker(
+        [18.62, 79.37], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_0b002e43762615207a2ef41420fe5ba6.bindTooltip(
+        `<div>
+             Peddapalli
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_57daad5a097a9c4cf94d0bb3ca7aebba = L.marker(
+        [21.93, 74.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_57daad5a097a9c4cf94d0bb3ca7aebba.bindTooltip(
+        `<div>
+             Pendra
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_30d40836b8fdef7068cfd2a9c137596a = L.marker(
+        [22.77, 81.95], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_30d40836b8fdef7068cfd2a9c137596a.bindTooltip(
+        `<div>
+             Pendra
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e8c0e89aa7d413539cff2ebdfc9ffff6 = L.marker(
+        [11.23, 78.88], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e8c0e89aa7d413539cff2ebdfc9ffff6.bindTooltip(
+        `<div>
+             Perambalur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d4203fdb53e026fb9889a5e0daf33d25 = L.marker(
+        [25.67, 94.5], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d4203fdb53e026fb9889a5e0daf33d25.bindTooltip(
+        `<div>
+             Phek
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c33232d0fdac4944de93d9e031ea4cb1 = L.marker(
+        [28.63, 79.8], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c33232d0fdac4944de93d9e031ea4cb1.bindTooltip(
+        `<div>
+             Pilibhit
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b9bed30cb7028ad959760ec5f0c7c248 = L.marker(
+        [29.58, 80.22], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b9bed30cb7028ad959760ec5f0c7c248.bindTooltip(
+        `<div>
+             Pithoragarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9595aa698c04e2da73f91a83745500b2 = L.marker(
+        [21.63, 69.6], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9595aa698c04e2da73f91a83745500b2.bindTooltip(
+        `<div>
+             Porbandar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_25a89fea3cda815894dfcffb2f163627 = L.marker(
+        [24.03, 74.78], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_25a89fea3cda815894dfcffb2f163627.bindTooltip(
+        `<div>
+             Pratapgarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6b9001bdb245f27b12bfeec3670abd56 = L.marker(
+        [11.93, 79.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6b9001bdb245f27b12bfeec3670abd56.bindTooltip(
+        `<div>
+             Puducherry
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7a10f5191112333d3eb2ae695cbe5ac8 = L.marker(
+        [10.38, 78.82], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7a10f5191112333d3eb2ae695cbe5ac8.bindTooltip(
+        `<div>
+             Pudukkottai
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_050b70d31c69b80dbbdb867e68434eb9 = L.marker(
+        [33.88, 74.92], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_050b70d31c69b80dbbdb867e68434eb9.bindTooltip(
+        `<div>
+             Pulwama
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_cecf4375e88db75216fba64dbe20802d = L.marker(
+        [25.82, 79.05], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_cecf4375e88db75216fba64dbe20802d.bindTooltip(
+        `<div>
+             Punch
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b44592eda5890ccf481eea281bcbb65c = L.marker(
+        [18.53, 73.87], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b44592eda5890ccf481eea281bcbb65c.bindTooltip(
+        `<div>
+             Pune
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_503847af1d7ea1aa052c6b4fa76f2445 = L.marker(
+        [19.8, 85.85], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_503847af1d7ea1aa052c6b4fa76f2445.bindTooltip(
+        `<div>
+             Puri
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_bb66ca1b6e93b6319eaa1d478b40e672 = L.marker(
+        [19.8, 85.85], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_bb66ca1b6e93b6319eaa1d478b40e672.bindTooltip(
+        `<div>
+             Puri District
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9e187dd7f4a611b37e4dbbe462769c4e = L.marker(
+        [25.78, 87.47], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9e187dd7f4a611b37e4dbbe462769c4e.bindTooltip(
+        `<div>
+             Purnia
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8a06903d520ff6be7d851ad45b350cd2 = L.marker(
+        [23.33, 86.37], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8a06903d520ff6be7d851ad45b350cd2.bindTooltip(
+        `<div>
+             Puruliya
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7bf270800328b614d2caf8112c544f15 = L.marker(
+        [26.22, 81.23], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7bf270800328b614d2caf8112c544f15.bindTooltip(
+        `<div>
+             Rae Bareli
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d046f4336231203eec059070cc5106c0 = L.marker(
+        [16.2, 77.37], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d046f4336231203eec059070cc5106c0.bindTooltip(
+        `<div>
+             Raichur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_dc0c1888c0ac5149eca08fd8c0e37656 = L.marker(
+        [21.9, 83.4], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_dc0c1888c0ac5149eca08fd8c0e37656.bindTooltip(
+        `<div>
+             Raigarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_67114e8572f545d789692bf6a37974d8 = L.marker(
+        [21.23, 81.63], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_67114e8572f545d789692bf6a37974d8.bindTooltip(
+        `<div>
+             Raipur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b4e1720997939bf938bed431d9f0202a = L.marker(
+        [23.33, 77.8], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b4e1720997939bf938bed431d9f0202a.bindTooltip(
+        `<div>
+             Raisen
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d001aecb8dfbdef643ec3995222b2119 = L.marker(
+        [27.23, 76.63], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d001aecb8dfbdef643ec3995222b2119.bindTooltip(
+        `<div>
+             Rajgarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6b640681611bba18036ef0117799baff = L.marker(
+        [22.3, 70.78], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6b640681611bba18036ef0117799baff.bindTooltip(
+        `<div>
+             Rajkot
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_cb5812920a2af114b0e3b981e7a16213 = L.marker(
+        [25.07, 73.88], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_cb5812920a2af114b0e3b981e7a16213.bindTooltip(
+        `<div>
+             Rajsamand
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8693d8bccb9dc138c63f4b6f3f455fec = L.marker(
+        [9.38, 78.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8693d8bccb9dc138c63f4b6f3f455fec.bindTooltip(
+        `<div>
+             Ramanathapuram
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c1a1aac1ac3176585ebb7765e96ebe38 = L.marker(
+        [33.25, 75.25], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c1a1aac1ac3176585ebb7765e96ebe38.bindTooltip(
+        `<div>
+             Ramban
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_bf9ace82dcf5ffc7a19ca8c357886cf5 = L.marker(
+        [23.63, 85.52], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_bf9ace82dcf5ffc7a19ca8c357886cf5.bindTooltip(
+        `<div>
+             Ramgarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c23f42ff4ce17fda426953f9351a57da = L.marker(
+        [28.82, 79.03], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c23f42ff4ce17fda426953f9351a57da.bindTooltip(
+        `<div>
+             Rampur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_03135f885c2e512dc517cfe48a1b552c = L.marker(
+        [23.35, 85.33], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_03135f885c2e512dc517cfe48a1b552c.bindTooltip(
+        `<div>
+             Ranchi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e0f390ea3fa353044c19e0e140af115e = L.marker(
+        [11.58, 92.75], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e0f390ea3fa353044c19e0e140af115e.bindTooltip(
+        `<div>
+             Rangachang
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_76d63e30e43ba07377ca9be3f41221ca = L.marker(
+        [12.93, 79.33], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_76d63e30e43ba07377ca9be3f41221ca.bindTooltip(
+        `<div>
+             Ranipet
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_59f2eef6013a77d729dea7812c1a7780 = L.marker(
+        [23.32, 75.07], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_59f2eef6013a77d729dea7812c1a7780.bindTooltip(
+        `<div>
+             Ratlam
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_21f58f639b464c4b93a36c7bf429fbc9 = L.marker(
+        [16.98, 73.3], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_21f58f639b464c4b93a36c7bf429fbc9.bindTooltip(
+        `<div>
+             Ratnagiri
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_260a05c37469ffd38467c486aa80340f = L.marker(
+        [19.17, 83.42], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_260a05c37469ffd38467c486aa80340f.bindTooltip(
+        `<div>
+             Rayagada
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d70c4d92b5614bf67791c8a576117eae = L.marker(
+        [24.53, 81.3], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d70c4d92b5614bf67791c8a576117eae.bindTooltip(
+        `<div>
+             Rewa
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9a33395bf28e0044aa73a58e1a1410c2 = L.marker(
+        [28.18, 76.62], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9a33395bf28e0044aa73a58e1a1410c2.bindTooltip(
+        `<div>
+             Rewari
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6de93e1ee94440db8cd9d9ce275f2d07 = L.marker(
+        [28.9, 76.57], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6de93e1ee94440db8cd9d9ce275f2d07.bindTooltip(
+        `<div>
+             Rohtak
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e53726e3c2add723eb4658269dcf144a = L.marker(
+        [30.28, 78.98], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e53726e3c2add723eb4658269dcf144a.bindTooltip(
+        `<div>
+             Rudraprayag
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f6120836ceab6720d28fd00e2f9a7908 = L.marker(
+        [30.97, 76.53], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f6120836ceab6720d28fd00e2f9a7908.bindTooltip(
+        `<div>
+             Rupnagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_aa73784bed2f326c68f7ec72e9f824a9 = L.marker(
+        [23.83, 78.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_aa73784bed2f326c68f7ec72e9f824a9.bindTooltip(
+        `<div>
+             Sagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_78b37bbbc90264c6e3a8c0bf502cc26e = L.marker(
+        [29.97, 77.55], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_78b37bbbc90264c6e3a8c0bf502cc26e.bindTooltip(
+        `<div>
+             Saharanpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_be4bf2bf6fd500584e03a785008a707c = L.marker(
+        [25.88, 86.6], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_be4bf2bf6fd500584e03a785008a707c.bindTooltip(
+        `<div>
+             Saharsa
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_60233c804906612fd721eecaf871e4aa = L.marker(
+        [25.25, 87.65], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_60233c804906612fd721eecaf871e4aa.bindTooltip(
+        `<div>
+             Sahibganj
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_c16118ce8c139af846ba5dd493ef5f56 = L.marker(
+        [22.48, 92.97], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_c16118ce8c139af846ba5dd493ef5f56.bindTooltip(
+        `<div>
+             Saiha
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9333d2c9fbbeb95cde0865b1f3ffcfbe = L.marker(
+        [23.97, 92.58], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9333d2c9fbbeb95cde0865b1f3ffcfbe.bindTooltip(
+        `<div>
+             Saitual
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_086f2baee87f8aea0df05255ade90e18 = L.marker(
+        [11.65, 78.17], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_086f2baee87f8aea0df05255ade90e18.bindTooltip(
+        `<div>
+             Salem
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b229f9e43f7132c7fbd214d469433e0f = L.marker(
+        [25.85, 85.78], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b229f9e43f7132c7fbd214d469433e0f.bindTooltip(
+        `<div>
+             Samastipur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_41ba2e80d984a331061b89bce1ddfaf0 = L.marker(
+        [32.57, 75.12], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_41ba2e80d984a331061b89bce1ddfaf0.bindTooltip(
+        `<div>
+             Samba
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b80a4adfa17220d23196d830f0054f29 = L.marker(
+        [21.45, 83.97], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b80a4adfa17220d23196d830f0054f29.bindTooltip(
+        `<div>
+             Sambalpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_81915ce2774f8564fd9618e4ad54cbff = L.marker(
+        [28.58, 78.55], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_81915ce2774f8564fd9618e4ad54cbff.bindTooltip(
+        `<div>
+             Sambhal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_71527abf5277cd198e81bf0205b40f75 = L.marker(
+        [16.87, 74.57], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_71527abf5277cd198e81bf0205b40f75.bindTooltip(
+        `<div>
+             Sangli
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_35e3ccfadf0f3ca6413ba000aeda629f = L.marker(
+        [30.23, 75.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_35e3ccfadf0f3ca6413ba000aeda629f.bindTooltip(
+        `<div>
+             Sangrur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_db959281f6f67d877d2b00ac0ef8ec64 = L.marker(
+        [23.2, 73.87], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_db959281f6f67d877d2b00ac0ef8ec64.bindTooltip(
+        `<div>
+             Sant
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_74c50534cab3732a045fc51b13468396 = L.marker(
+        [22.72, 85.95], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_74c50534cab3732a045fc51b13468396.bindTooltip(
+        `<div>
+             Saraikela
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_aff2e5747f0f8ef70c0dd0fe93c5d034 = L.marker(
+        [24.48, 86.3], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_aff2e5747f0f8ef70c0dd0fe93c5d034.bindTooltip(
+        `<div>
+             Saran
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_73825750e86c25d66eeeb2ae1cc361e0 = L.marker(
+        [25.72, 73.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_73825750e86c25d66eeeb2ae1cc361e0.bindTooltip(
+        `<div>
+             Saran
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f847793bffb219959fa2ba40faf5733c = L.marker(
+        [17.68, 73.98], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f847793bffb219959fa2ba40faf5733c.bindTooltip(
+        `<div>
+             Satara
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ae3b0cb2d50d2218183a2287effedd03 = L.marker(
+        [24.58, 80.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ae3b0cb2d50d2218183a2287effedd03.bindTooltip(
+        `<div>
+             Satna
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d05cfd43547637b211e94c0dffff4f7e = L.marker(
+        [25.98, 76.37], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d05cfd43547637b211e94c0dffff4f7e.bindTooltip(
+        `<div>
+             Sawai Madhopur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_dbda6ab55f3102513f2419aa6d88cb3e = L.marker(
+        [23.2, 77.08], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_dbda6ab55f3102513f2419aa6d88cb3e.bindTooltip(
+        `<div>
+             Sehore
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_cd959c179fa1012c30f54460281fa8d8 = L.marker(
+        [22.08, 79.53], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_cd959c179fa1012c30f54460281fa8d8.bindTooltip(
+        `<div>
+             Seoni
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_09349f7a1dd5b4b2942ae184c22e31bf = L.marker(
+        [23.3, 92.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_09349f7a1dd5b4b2942ae184c22e31bf.bindTooltip(
+        `<div>
+             Serchhip
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d3d1823bd3cd625304c8351d3b226d04 = L.marker(
+        [28.67, 77.32], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d3d1823bd3cd625304c8351d3b226d04.bindTooltip(
+        `<div>
+             Shahdara
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_464371d702135dc1964246f9c182281f = L.marker(
+        [23.28, 81.35], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_464371d702135dc1964246f9c182281f.bindTooltip(
+        `<div>
+             Shahdol
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_cc440f4db0e003248eca3a7136f6f5bd = L.marker(
+        [27.88, 79.92], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_cc440f4db0e003248eca3a7136f6f5bd.bindTooltip(
+        `<div>
+             Shahjahanpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_49aeacfe17336752a613aa62695a55e0 = L.marker(
+        [23.43, 76.27], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_49aeacfe17336752a613aa62695a55e0.bindTooltip(
+        `<div>
+             Shajapur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ef72582824286f8033ff3a0f029f59b6 = L.marker(
+        [34.33, 74.23], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ef72582824286f8033ff3a0f029f59b6.bindTooltip(
+        `<div>
+             Sheikhpura
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ea8b91a6f47f8868e6a8affa3666e39d = L.marker(
+        [26.52, 85.3], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ea8b91a6f47f8868e6a8affa3666e39d.bindTooltip(
+        `<div>
+             Sheohar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_da9921d4db9173094951788d32464fae = L.marker(
+        [25.67, 76.7], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_da9921d4db9173094951788d32464fae.bindTooltip(
+        `<div>
+             Sheopur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9908053f8df4bf11a7438c39269bd374 = L.marker(
+        [31.1, 77.17], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9908053f8df4bf11a7438c39269bd374.bindTooltip(
+        `<div>
+             Shimla
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_dbdba9d223343fbddbb05756c0cfb764 = L.marker(
+        [13.92, 75.57], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_dbdba9d223343fbddbb05756c0cfb764.bindTooltip(
+        `<div>
+             Shimoga
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_4bb054a7c2f46ff2542a37f2638aa0c5 = L.marker(
+        [25.43, 77.65], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_4bb054a7c2f46ff2542a37f2638aa0c5.bindTooltip(
+        `<div>
+             Shivpuri
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1470f5d20116a6bc0b1c3240d61081ea = L.marker(
+        [33.72, 74.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1470f5d20116a6bc0b1c3240d61081ea.bindTooltip(
+        `<div>
+             Shupiyan
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_5186a2d41dda4d5939a95b7efcad723e = L.marker(
+        [22.6, 83.05], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_5186a2d41dda4d5939a95b7efcad723e.bindTooltip(
+        `<div>
+             Siang
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d1cd7f4a6870ebc460877b50f08e0ba6 = L.marker(
+        [18.1, 78.85], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d1cd7f4a6870ebc460877b50f08e0ba6.bindTooltip(
+        `<div>
+             Siddipet
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_af376e6f4bac6785754dc9590042efd9 = L.marker(
+        [24.42, 81.88], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_af376e6f4bac6785754dc9590042efd9.bindTooltip(
+        `<div>
+             Sidhi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_363c489bc41cdfb012923120ec26171e = L.marker(
+        [27.62, 75.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_363c489bc41cdfb012923120ec26171e.bindTooltip(
+        `<div>
+             Sikar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_5f253f0500121500aaa50d82d320ea45 = L.marker(
+        [22.62, 84.52], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_5f253f0500121500aaa50d82d320ea45.bindTooltip(
+        `<div>
+             Simdega
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_859ef4b741ee53bd7cf4a8e5d3833474 = L.marker(
+        [24.85, 81.38], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_859ef4b741ee53bd7cf4a8e5d3833474.bindTooltip(
+        `<div>
+             Sirmaur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_77cb0377a54abf3b9cefacf2d7640650 = L.marker(
+        [24.88, 72.87], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_77cb0377a54abf3b9cefacf2d7640650.bindTooltip(
+        `<div>
+             Sirohi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_807236f588a97918a60e5f7b7cb7c957 = L.marker(
+        [29.53, 75.02], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_807236f588a97918a60e5f7b7cb7c957.bindTooltip(
+        `<div>
+             Sirsa
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_48f7fa765b1b2d42606dd5d8693c1d0b = L.marker(
+        [26.6, 85.48], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_48f7fa765b1b2d42606dd5d8693c1d0b.bindTooltip(
+        `<div>
+             Sitamarhi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_5426f8737cd05e872367b54f3f46a4a6 = L.marker(
+        [27.57, 80.68], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_5426f8737cd05e872367b54f3f46a4a6.bindTooltip(
+        `<div>
+             Sitapur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ece9ca2d74057a4d575c3fad5d437104 = L.marker(
+        [9.87, 78.48], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ece9ca2d74057a4d575c3fad5d437104.bindTooltip(
+        `<div>
+             Sivaganga
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_337f0a1cbef4efae4fdb90fb205330d2 = L.marker(
+        [26.22, 84.37], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_337f0a1cbef4efae4fdb90fb205330d2.bindTooltip(
+        `<div>
+             Siwan
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_20f1b3907c36f5c1a0e26f197a809e94 = L.marker(
+        [30.92, 77.12], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_20f1b3907c36f5c1a0e26f197a809e94.bindTooltip(
+        `<div>
+             Solan
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e61a831752d838ee2c97eacca6b49f4f = L.marker(
+        [17.68, 75.92], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e61a831752d838ee2c97eacca6b49f4f.bindTooltip(
+        `<div>
+             Solapur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_bc5d95906591d60e3980cdb9d24f4647 = L.marker(
+        [20.88, 70.37], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_bc5d95906591d60e3980cdb9d24f4647.bindTooltip(
+        `<div>
+             Somnath
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_31484323cc7559ac5d10be236e375918 = L.marker(
+        [28.98, 77.02], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_31484323cc7559ac5d10be236e375918.bindTooltip(
+        `<div>
+             Sonipat
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7cba93131a17d99711110d47573985da = L.marker(
+        [25.92, 90.02], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7cba93131a17d99711110d47573985da.bindTooltip(
+        `<div>
+             South Salmara
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ccca70cc3e506c594c693ebbf2813170 = L.marker(
+        [22.5, 88.3], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ccca70cc3e506c594c693ebbf2813170.bindTooltip(
+        `<div>
+             South Suburban
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_59ba436a15ce9bd5b86839e13a3e6a3a = L.marker(
+        [18.3, 83.9], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_59ba436a15ce9bd5b86839e13a3e6a3a.bindTooltip(
+        `<div>
+             Srikakulam
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e717bc577b59f330cde1fed65c5afd35 = L.marker(
+        [34.09, 74.8], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e717bc577b59f330cde1fed65c5afd35.bindTooltip(
+        `<div>
+             Srinagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8722ec8665defa0a7564fcd2c368a473 = L.marker(
+        [18.4, 81.67], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8722ec8665defa0a7564fcd2c368a473.bindTooltip(
+        `<div>
+             Sukma
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ba3bd165c473bdf06a60f5ad1c7e177d = L.marker(
+        [26.27, 82.07], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ba3bd165c473bdf06a60f5ad1c7e177d.bindTooltip(
+        `<div>
+             Sultanpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_adfb42306d0b9fec33432cca64ec839f = L.marker(
+        [22.12, 84.03], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_adfb42306d0b9fec33432cca64ec839f.bindTooltip(
+        `<div>
+             Sundargarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9862424a16270d19bcd33d01974ff3fa = L.marker(
+        [26.12, 86.6], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9862424a16270d19bcd33d01974ff3fa.bindTooltip(
+        `<div>
+             Supaul
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8e788d54c0e2a8855df6d4ad8fca4526 = L.marker(
+        [30.78, 76.9], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8e788d54c0e2a8855df6d4ad8fca4526.bindTooltip(
+        `<div>
+             Surajpur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_35efab60d5930dc131bd299a77f0437f = L.marker(
+        [20.97, 72.9], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_35efab60d5930dc131bd299a77f0437f.bindTooltip(
+        `<div>
+             Surat
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_43c8cb75676295bce9f6a068a1dd5842 = L.marker(
+        [22.7, 71.68], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_43c8cb75676295bce9f6a068a1dd5842.bindTooltip(
+        `<div>
+             Surendranagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3e7acbff9018b71fc31f61269098fa19 = L.marker(
+        [23.12, 83.2], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3e7acbff9018b71fc31f61269098fa19.bindTooltip(
+        `<div>
+             Surguja
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_20e07cd964081708d9e95b59f614868f = L.marker(
+        [17.15, 79.62], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_20e07cd964081708d9e95b59f614868f.bindTooltip(
+        `<div>
+             Suryapet
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_768b670a2cb78f7b10add314dbff6105 = L.marker(
+        [32.65, 74.93], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_768b670a2cb78f7b10add314dbff6105.bindTooltip(
+        `<div>
+             Talab Data
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_2f5c664a045c9272da116fe16b5c07d2 = L.marker(
+        [24.97, 93.55], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_2f5c664a045c9272da116fe16b5c07d2.bindTooltip(
+        `<div>
+             Tamenglong
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_d8862b5c2853a691fc9edc0217ca28ab = L.marker(
+        [31.45, 74.93], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_d8862b5c2853a691fc9edc0217ca28ab.bindTooltip(
+        `<div>
+             Tarn Taran
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9646696d187e37a53f92870d1430d3b5 = L.marker(
+        [27.58, 91.87], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9646696d187e37a53f92870d1430d3b5.bindTooltip(
+        `<div>
+             Tawang
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_1333b26323cdda3eaccbdfd6c296f03e = L.marker(
+        [30.38, 78.48], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_1333b26323cdda3eaccbdfd6c296f03e.bindTooltip(
+        `<div>
+             Tehri-Garhwal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_26450e6bc2413a775c02d98c550a55ca = L.marker(
+        [8.97, 77.3], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_26450e6bc2413a775c02d98c550a55ca.bindTooltip(
+        `<div>
+             Tenkasi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_fd1f20dfd5035c7059c330950da60e43 = L.marker(
+        [19.2, 72.97], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_fd1f20dfd5035c7059c330950da60e43.bindTooltip(
+        `<div>
+             Thane
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_742bcad94219c35916dc4b65cb654435 = L.marker(
+        [10.8, 79.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_742bcad94219c35916dc4b65cb654435.bindTooltip(
+        `<div>
+             Thanjavur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9ae88282356d2eb7bfbe23643b94f13e = L.marker(
+        [8.51, 76.96], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9ae88282356d2eb7bfbe23643b94f13e.bindTooltip(
+        `<div>
+             Thiruvananthapuram
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_291efd9ff282c9d1e71045522ad2ed1b = L.marker(
+        [10.77, 79.65], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_291efd9ff282c9d1e71045522ad2ed1b.bindTooltip(
+        `<div>
+             Thiruvarur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ee3f06bb06a05f21248a6ae18b73d025 = L.marker(
+        [24.63, 94.02], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ee3f06bb06a05f21248a6ae18b73d025.bindTooltip(
+        `<div>
+             Thoubal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6cddda4dc720fc05c63204f9c381ad38 = L.marker(
+        [10.52, 76.22], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6cddda4dc720fc05c63204f9c381ad38.bindTooltip(
+        `<div>
+             Thrissur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_57d36c223f4a1c05b72f36c2517c3151 = L.marker(
+        [24.73, 78.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_57d36c223f4a1c05b72f36c2517c3151.bindTooltip(
+        `<div>
+             Tikamgarh
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_fcf55864b738f89cf6cd144b6e5f4438 = L.marker(
+        [27.5, 95.37], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_fcf55864b738f89cf6cd144b6e5f4438.bindTooltip(
+        `<div>
+             Tinsukia
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_68035582dbc43bbf47d343783e5a11e7 = L.marker(
+        [27.17, 95.8], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_68035582dbc43bbf47d343783e5a11e7.bindTooltip(
+        `<div>
+             Tirap
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_18beee12fe0fc787cafa995a330c2539 = L.marker(
+        [10.81, 78.69], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_18beee12fe0fc787cafa995a330c2539.bindTooltip(
+        `<div>
+             Tiruchirappalli
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_15696b08f0b1310904c81e71aff4c57d = L.marker(
+        [8.73, 77.7], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_15696b08f0b1310904c81e71aff4c57d.bindTooltip(
+        `<div>
+             Tirunelveli
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_10078be2e666270251ce86aa0981d540 = L.marker(
+        [11.1, 77.35], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_10078be2e666270251ce86aa0981d540.bindTooltip(
+        `<div>
+             Tiruppur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_cb00ba5224cce7628a6c1af7adaabc3f = L.marker(
+        [12.22, 79.07], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_cb00ba5224cce7628a6c1af7adaabc3f.bindTooltip(
+        `<div>
+             Tiruvannamalai
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_8be22f9f9d064874edd7b53e54ec660e = L.marker(
+        [26.17, 75.78], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_8be22f9f9d064874edd7b53e54ec660e.bindTooltip(
+        `<div>
+             Tonk
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9b9a36e4ec2802e0a52fbe9f4aa93712 = L.marker(
+        [26.28, 94.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9b9a36e4ec2802e0a52fbe9f4aa93712.bindTooltip(
+        `<div>
+             Tuensang
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a1068a3f4d375056b78c0f9c4c180481 = L.marker(
+        [13.34, 77.1], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a1068a3f4d375056b78c0f9c4c180481.bindTooltip(
+        `<div>
+             Tumkur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_05da905de61a1158b8d1a1d017cc4eed = L.marker(
+        [27.72, 75.48], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_05da905de61a1158b8d1a1d017cc4eed.bindTooltip(
+        `<div>
+             Udaipur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_730c130162142cecbc6b62a3f812551e = L.marker(
+        [20.62, 83.72], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_730c130162142cecbc6b62a3f812551e.bindTooltip(
+        `<div>
+             Udaipur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_5f5a911a47a764fe39ff58948ec223b1 = L.marker(
+        [26.77, 92.13], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_5f5a911a47a764fe39ff58948ec223b1.bindTooltip(
+        `<div>
+             Udalguri
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_e75ca5b7f94e354b24f201b78676c847 = L.marker(
+        [32.93, 75.13], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_e75ca5b7f94e354b24f201b78676c847.bindTooltip(
+        `<div>
+             Udhampur
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_eb2925843b77d07421bee34e083dccb7 = L.marker(
+        [13.35, 74.75], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_eb2925843b77d07421bee34e083dccb7.bindTooltip(
+        `<div>
+             Udupi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_3ab2be7f1bd94ac395c13c75a43dd177 = L.marker(
+        [23.18, 75.77], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_3ab2be7f1bd94ac395c13c75a43dd177.bindTooltip(
+        `<div>
+             Ujjain
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7846486aed90d20f3964604e25c35729 = L.marker(
+        [25.12, 94.37], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7846486aed90d20f3964604e25c35729.bindTooltip(
+        `<div>
+             Ukhrul
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_51e4e90eab9e7255b49ec6d5327fb457 = L.marker(
+        [23.53, 80.83], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_51e4e90eab9e7255b49ec6d5327fb457.bindTooltip(
+        `<div>
+             Umaria
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_fbacde6c7ca69927df25c19e452f59be = L.marker(
+        [20.82, 71.03], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_fbacde6c7ca69927df25c19e452f59be.bindTooltip(
+        `<div>
+             Una
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_45a0527f601a87dd3a6d70e85a84c514 = L.marker(
+        [26.53, 80.5], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_45a0527f601a87dd3a6d70e85a84c514.bindTooltip(
+        `<div>
+             Unnao
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ed7de897285e626ae863a398ec05a632 = L.marker(
+        [13.68, 79.35], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ed7de897285e626ae863a398ec05a632.bindTooltip(
+        `<div>
+             Upper Tirupati
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6da1e295356acc302c713ff3290779ad = L.marker(
+        [30.73, 78.45], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6da1e295356acc302c713ff3290779ad.bindTooltip(
+        `<div>
+             Uttarkashi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_772ee0f6778b128ee88fb1afaf0d5b16 = L.marker(
+        [22.3, 73.2], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_772ee0f6778b128ee88fb1afaf0d5b16.bindTooltip(
+        `<div>
+             Vadodara
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ff3f4d9027ae93cf3743aea615fb74ea = L.marker(
+        [20.63, 72.93], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ff3f4d9027ae93cf3743aea615fb74ea.bindTooltip(
+        `<div>
+             Valsad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_068243188f60f8a5528e8891889b7b38 = L.marker(
+        [25.33, 83.0], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_068243188f60f8a5528e8891889b7b38.bindTooltip(
+        `<div>
+             Varanasi
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_0bf1b48e7ea91786562587eb5a3769ec = L.marker(
+        [12.93, 79.13], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_0bf1b48e7ea91786562587eb5a3769ec.bindTooltip(
+        `<div>
+             Vellore
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_b2a6eb297d519b194a3fd7f038081343 = L.marker(
+        [23.53, 77.82], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_b2a6eb297d519b194a3fd7f038081343.bindTooltip(
+        `<div>
+             Vidisha
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_86bd45a8f9ece3ad50d73f0b8062bd32 = L.marker(
+        [17.33, 77.9], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_86bd45a8f9ece3ad50d73f0b8062bd32.bindTooltip(
+        `<div>
+             Vikarabad
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6069904ee00746c6c389c3a21a2a6c09 = L.marker(
+        [17.7, 83.3], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6069904ee00746c6c389c3a21a2a6c09.bindTooltip(
+        `<div>
+             Visakhapatnam
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_894f99c7083f90eb06aa9120e1208b5a = L.marker(
+        [18.12, 83.42], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_894f99c7083f90eb06aa9120e1208b5a.bindTooltip(
+        `<div>
+             Vizianagaram
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_dabf702f4c620af493ad8bdf4259a4e2 = L.marker(
+        [16.37, 78.07], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_dabf702f4c620af493ad8bdf4259a4e2.bindTooltip(
+        `<div>
+             Wanaparthy
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_ac3cd1a862135ace64a39d89dfc62e68 = L.marker(
+        [18.0, 79.58], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_ac3cd1a862135ace64a39d89dfc62e68.bindTooltip(
+        `<div>
+             Warangal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_54459039b3a366c8383e06722f89a546 = L.marker(
+        [20.75, 78.62], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_54459039b3a366c8383e06722f89a546.bindTooltip(
+        `<div>
+             Wardha
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_658ac2a67090bcb867a7dfefa4355446 = L.marker(
+        [20.1, 77.15], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_658ac2a67090bcb867a7dfefa4355446.bindTooltip(
+        `<div>
+             Washim
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_f51ffc468f90f0f480cb00d73e6c8eb6 = L.marker(
+        [16.7, 81.1], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_f51ffc468f90f0f480cb00d73e6c8eb6.bindTooltip(
+        `<div>
+             West Godavari
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_6a4db0f088d0ded63509d087afb1c348 = L.marker(
+        [26.1, 94.27], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_6a4db0f088d0ded63509d087afb1c348.bindTooltip(
+        `<div>
+             Wokha
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_535913fa8d9963aa469b64d248670aff = L.marker(
+        [16.77, 77.13], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_535913fa8d9963aa469b64d248670aff.bindTooltip(
+        `<div>
+             Yadgir
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_7dc856274c188e054d9f38fe96eb9c16 = L.marker(
+        [30.1, 77.28], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_7dc856274c188e054d9f38fe96eb9c16.bindTooltip(
+        `<div>
+             Yamunanagar
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_9c278c00d835658b75c407f5d11e171e = L.marker(
+        [16.73, 82.22], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_9c278c00d835658b75c407f5d11e171e.bindTooltip(
+        `<div>
+             Yanam
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_dd5411b33f9f9ebd0613b1b3215032e7 = L.marker(
+        [20.4, 78.13], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_dd5411b33f9f9ebd0613b1b3215032e7.bindTooltip(
+        `<div>
+             Yavatmal
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+
+    var marker_a9e7d2e549f751741473078090b875c4 = L.marker(
+        [25.97, 94.52], {}
+    ).addTo(map_bfe8d74b7811c31edb666c542fc9d678);
+
+
+    marker_a9e7d2e549f751741473078090b875c4.bindTooltip(
+        `<div>
+             Zunheboto
+         </div>`, {
+            "sticky": true
+        }
+    );
+
+    var citySelect = document.getElementById('citySelect');
+    var cityForm = document.getElementById('cityForm');
+
+    map_bfe8d74b7811c31edb666c542fc9d678.eachLayer(function (layer) {
+        if (layer instanceof L.Marker) {
+            layer.on('click', function (e) {
+
+                var cityName = this.getTooltip().getContent();
+
+                cityName = cityName.replace(/<\/?[^>]+(>|$)/g, "");
+
+                citySelect.value = cityName.trim();
+
+                cityForm.submit();
+            });
+        }
+    });
+</script>
+
+</html>

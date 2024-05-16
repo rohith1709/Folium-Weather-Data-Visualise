@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization</title>
+</head>
+<body>
+    <form action="#" method="get">
+        <label for="data-type">Select Data Type:</label>
+        <select name="data-type" id="data-type">
+            <option value="temperature_plot">Temperature</option>
+            <option value="humidity_plot">Humidity</option>
+            <option value="wind_speed_plot">Wind Speed</option>
+            <option value="temperature_humidity_scatter">Temperature vs Humidity</option>
+            <option value="air_quality_plot">Air Quality</option>
+        </select>
+        <input type="submit" value="Submit">
+    </form>
+
+    <div id="image-container">
+        <img id="default-image" src="/static/temperature_plot.png" alt="Default Image">
+    </div>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            var selectedValue = document.getElementById('data-type').value;
+
+            // Clear previous image, if any
+            document.getElementById('image-container').innerHTML = '';
+
+            // Create new image element
+            var img = document.createElement('img');
+            img.src = `/static/${selectedValue}.png`; // Assuming images are named according to selected data type
+            img.alt = selectedValue;
+
+            // Append the image to the container
+            document.getElementById('image-container').appendChild(img);
+        });
+    </script>
+</body>
+</html>

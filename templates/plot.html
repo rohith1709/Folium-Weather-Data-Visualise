@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization</title>
+    <style>
+        * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 100%;
+            height: 100vh;
+            padding: 1vh;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+
+        form {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+
+        label {
+            padding: 0 2ch;
+            color: #007bff;
+            text-shadow: 0 0 5px #007bff;
+        }
+
+        select {
+            height: 100%;
+            padding: 0 2ch;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: 0.5s ease;
+        }
+
+        select::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #007bff;
+            transition: .6s;
+            transform: scale(.9);
+            z-index: -1;
+        }
+
+        select:hover::before {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px #007bff;
+        }
+
+        select:hover {
+            color: #007bff;
+            box-shadow: 0 0 5px #007bff;
+            text-shadow: 0 0 5px #007bff;
+        }
+
+
+        input[type="submit"] {
+            margin: 0 2ch;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            background-image: linear-gradient(to right, #007bff, #00bfff, #0d2aad);
+            box-shadow: 0 4px 15px 0 rgba(0, 123, 255, 0.75);
+            cursor: pointer;
+            background-size: 300% 100%;
+            -o-transition: all .4s ease-in-out;
+            -webkit-transition: all .4s ease-in-out;
+            transition: all .4s ease-in-out;
+        }
+
+        input[type="submit"]:hover {
+            background-position: 100% 0;
+            -o-transition: all .4s ease-in-out;
+            -webkit-transition: all .4s ease-in-out;
+            transition: all .4s ease-in-out;
+        }
+
+        #image-container {
+
+            max-height: calc(100vh - 135px);
+            width: 100%;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        #image-container img {
+            width: 90%;
+            height: 100%;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #image-container img.hidden {
+            opacity: 0;
+        }
+
+        p {
+            text-align: center;
+            justify-content: center;
+        }
+
+        a {
+            text-decoration: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            background-size: 300% 100%;
+            -o-transition: all .4s ease-in-out;
+            -webkit-transition: all .4s ease-in-out;
+            transition: all .4s ease-in-out;
+            transition: background-color 0.3s ease;
+            /* background-image: linear-gradient(to right, #29323c, #485563, #2b5876, #4e4376);
+    box-shadow: 0 4px 15px 0 rgba(45, 54, 65, 0.75); */
+            background-image: linear-gradient(to right, #007bff, #00bfff, #0d2aad);
+            box-shadow: 0 4px 15px 0 rgba(0, 123, 255, 0.75);
+        }
+
+        a:hover,
+        a:focus {
+            background-position: 100% 0;
+            -o-transition: all .4s ease-in-out;
+            -webkit-transition: all .4s ease-in-out;
+            transition: all .4s ease-in-out;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <form action="#" method="get">
+            <label for="data-type">Select Data Type:</label>
+            <select name="data-type" id="data-type">
+                <option value="temperature_plot">Temperature</option>
+                <option value="humidity_plot">Humidity</option>
+                <option value="wind_speed_plot">Wind Speed</option>
+                <option value="temperature_humidity_scatter">Temperature vs Humidity</option>
+                <option value="air_quality_co_plot">Air Quality CO</option>
+                <option value="air_quality_ozone_plot">Air Quality O3</option>
+                <option value="air_quality_NO_plot">Air Quality NO2</option>
+                <option value="air_quality_SO_plot">Air Quality SO2</option>
+                <option value="air_quality_PM_plot">Air Quality PM Particles</option>
+                <option value="sunrise_sunset_plot">Sunrise and Sunset</option>
+                <option value="moonrise_moonset_plot">Moonrise and Moonset</option>
+                <option value="moon_illumination_plot">Illumination of the Moon</option>
+                <option value="moon_phase_plot">Moon Phase Frequency</option>
+            </select>
+            <input type="submit" value="Submit">
+        </form>
+
+        <div id="image-container">
+            <img id="default-image" src="/static/temperature_plot.png" alt="Default Image">
+        </div>
+        <p><a href="/">Back to City Selection</a></p>
+    </div>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            var selectedValue = document.getElementById('data-type').value;
+            var imageContainer = document.getElementById('image-container');
+
+            var currentImage = imageContainer.querySelector('img:not(.hidden)');
+            if (currentImage) {
+                currentImage.classList.add('hidden');
+            }
+
+            var img = document.createElement('img');
+            img.src =
+                `/static/${selectedValue}.png`;
+            img.alt = selectedValue;
+
+            setTimeout(function () {
+                if (currentImage) {
+                    currentImage.remove();
+                }
+                img.classList.remove('hidden');
+                imageContainer.appendChild(img);
+            }, 500);
+        });
+    </script>
+</body>
+
+</html>
